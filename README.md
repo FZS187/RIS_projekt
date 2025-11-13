@@ -165,7 +165,7 @@ Pred zagonom aplikacije se prepričajte, da imate nameščeno naslednje:
 
 1. **Kloniranje Repozitorija:**
     ```bash
-    git clone [LINK VAŠEG REPOZITORIJA]
+    git clone [https://github.com/PetarKojadinovic/RIS_projekt.git]
     cd RIS_PROJEKT
     ```
 
