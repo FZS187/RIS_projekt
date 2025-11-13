@@ -113,6 +113,26 @@ Medtem ko uporabniku omogočamo, da ostane organiziran in produktiven, se mi kot
 
 To je projekt, ki **resnično pomaga ljudem** in hkrati **gradi naše znanje** za prihodnjo kariero v IT industriji.
 
+## 📝 Besednjak (Slovar Ključnih Izrazov)
+
+V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in kodi projekta ter so neposredno povezani z reševanjem problema organizacije nalog, kot je določeno v Viziji.
+
+| Izraz (Termin) | Povezava z Vizijo Projekta | Razlaga v Kontekstu Aplikacije |
+| :--- | :--- | :--- |
+| **Full-Stack** | **Tehnološka Prednost** (Popolna rešitev) | Aplikacija, ki obsega tako uporabniški vmesnik (React Frontend) kot strežniško logiko in podatkovno bazo (Spring Boot Backend). |
+| **Kontejnerizacija** | **Tehnološka Prednost** (Enostavna postavitev) | Postopek pakiranja aplikacije in njene baze podatkov (MySQL) v izolirane in prenosljive Docker kontejnerje. |
+| **Entitet *Todo*** | **Namen Aplikacije** (Osnovna enota dela) | Objekt, ki predstavlja eno samo opravilo. Vsebuje polja **`name`**, **`completed`** in **`dueDate`**. |
+| **DueDate (Rok)** | **Prihodnji Cilj** (Upravljanje z roki) | Polje tipa `LocalDate` v entitetu `Todo`, ki omogoča uporabniku, da **nastavi roke** za naloge, kar je ključno za zmanjšanje stresa. |
+| **Query Parameter** | **Problem, ki ga Rešujemo** (Napredno iskanje/filtriranje) | Del URL-ja (`/api/todos?search=posel`), ki se uporablja za pošiljanje pogojev za **filtriranje** in **iskanje** podatkov na backend. |
+| **Soritveni Sloj (Service Layer)** | **Tehnološka Prednost** (Profesionalni pristop) | Sloj v Spring Bootu, kjer se izvaja kompleksna **poslovna logika** – vključno z logiko za napredno iskanje in filtriranje, ki je izpostavljena v Viziji. |
+| **RESTful API** | **Tehnološka Prednost** (Prihodnje razširitve) | Sklop pravil za komunikacijo med frontendom in backendom, ki omogoča enostaven razvoj **Mobilne aplikacije** in drugih integracij v prihodnosti. |
+| **Toggle** | **Kaj Želimo Doseči** (Enostavno označevanje) | Operacija, ki preklopi logično stanje naloge (`completed`) z enega klika, kar omogoča hiter in pregleden pregled dela. |
+| **CRUD** | **Kaj Želimo Doseči** (Osnovno upravljanje) | Standardne operacije (Ustvari, Beri, Posodobi, Izbriši), ki uporabniku omogočajo, da naloge **ureja ali izbriše brez težav**. |
+| **Repozitorij (Repository)** | **Učna Vrednost** (Delo z bazama) | Vmesnik, ki skrbi za varno in direktno komunikaciju z **MySQL podatkovno bazo** (podatki so varno shranjeni). |
+| **Frontend** | **Problem, ki ga Rešujemo** (Pregleden vmesnik) | React aplikacija, ki služi kot **pregleden in hiter vmesnik** za uporabnika. |
+| **Backend** | **Tehnološka Prednost** (Arhitektura mikrostoritev) | Spring Boot aplikacija, ki skrbi za API logiku i podatkovni dostop, in predstavlja srce **mikrostoritvene arhitekture**. |
+
+
 ---
 
 ##  Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
