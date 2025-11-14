@@ -137,7 +137,7 @@ V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in k
 
 ## DPU Diagram
 
-![DPU Diagram](C:\Users\Sekulovic\Pictures\Screenshots\Screenshot 2025-11-14 192805.png)
+![DPU Diagram](./assets/DPU.png)
 
 ## Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
 
