@@ -64,13 +64,13 @@ Naš cilj je ustvariti aplikacijo, kjer uporabnik:
 
 ## Primerjava z obstoječimi rešitvami
 
-| Naša aplikacija | Papirnati listi | Preproste ToDo app |
-|-----------------|-----------------|-------------------|
-| Iskanje po ključnih besedah | Ne | Omejeno |
-| Filtriranje po statusu | Ne | Da |
-| Varno shranjevanje | Ne | Da |
-| Urejanje nalog | Ne | Da |
-| Skalabilna arhitektura | Ne | Ne |
+| Naša aplikacija             | Papirnati listi | Preproste ToDo app |
+| --------------------------- | --------------- | ------------------ |
+| Iskanje po ključnih besedah | Ne              | Omejeno            |
+| Filtriranje po statusu      | Ne              | Da                 |
+| Varno shranjevanje          | Ne              | Da                 |
+| Urejanje nalog              | Ne              | Da                 |
+| Skalabilna arhitektura      | Ne              | Ne                 |
 
 ## Prihodnost projekta
 
@@ -107,9 +107,9 @@ Ta projekt ni le praktična aplikacija, ampak tudi **učno orodje**. Z njim:
 
 ## Zaključek
 
-Naša ToDo aplikacija je več kot le seznam nalog - je **celovita rešitev** za organizacijo vsakdanjega življenja. Kombinira **preprostost uporabe** s **profesionalno tehnično izvedbo**. 
+Naša ToDo aplikacija je več kot le seznam nalog - je **celovita rešitev** za organizacijo vsakdanjega življenja. Kombinira **preprostost uporabe** s **profesionalno tehnično izvedbo**.
 
-Medtem ko uporabniku omogočamo, da ostane organiziran in produktiven, se mi kot razvijalci učimo tehnologij in pristopov, ki se uporabljajo v resničnih poslovnih okoljih. 
+Medtem ko uporabniku omogočamo, da ostane organiziran in produktiven, se mi kot razvijalci učimo tehnologij in pristopov, ki se uporabljajo v resničnih poslovnih okoljih.
 
 To je projekt, ki **resnično pomaga ljudem** in hkrati **gradi naše znanje** za prihodnjo kariero v IT industriji.
 
@@ -117,25 +117,29 @@ To je projekt, ki **resnično pomaga ljudem** in hkrati **gradi naše znanje** z
 
 V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in kodi projekta ter so neposredno povezani z reševanjem problema organizacije nalog, kot je določeno v Viziji.
 
-| Izraz (Termin) | Povezava z Vizijo Projekta | Razlaga v Kontekstu Aplikacije |
-| :--- | :--- | :--- |
-| **Full-Stack** | **Tehnološka Prednost** (Popolna rešitev) | Aplikacija, ki obsega tako uporabniški vmesnik (React Frontend) kot strežniško logiko in podatkovno bazo (Spring Boot Backend). |
-| **Kontejnerizacija** | **Tehnološka Prednost** (Enostavna postavitev) | Postopek pakiranja aplikacije in njene baze podatkov (MySQL) v izolirane in prenosljive Docker kontejnerje. |
-| **Entitet *Todo*** | **Namen Aplikacije** (Osnovna enota dela) | Objekt, ki predstavlja eno samo opravilo. Vsebuje polja **`name`**, **`completed`** in **`dueDate`**. |
-| **DueDate (Rok)** | **Prihodnji Cilj** (Upravljanje z roki) | Polje tipa `LocalDate` v entitetu `Todo`, ki omogoča uporabniku, da **nastavi roke** za naloge, kar je ključno za zmanjšanje stresa. |
-| **Query Parameter** | **Problem, ki ga Rešujemo** (Napredno iskanje/filtriranje) | Del URL-ja (`/api/todos?search=posel`), ki se uporablja za pošiljanje pogojev za **filtriranje** in **iskanje** podatkov na backend. |
-| **Soritveni Sloj (Service Layer)** | **Tehnološka Prednost** (Profesionalni pristop) | Sloj v Spring Bootu, kjer se izvaja kompleksna **poslovna logika** – vključno z logiko za napredno iskanje in filtriranje, ki je izpostavljena v Viziji. |
-| **RESTful API** | **Tehnološka Prednost** (Prihodnje razširitve) | Sklop pravil za komunikacijo med frontendom in backendom, ki omogoča enostaven razvoj **Mobilne aplikacije** in drugih integracij v prihodnosti. |
-| **Toggle** | **Kaj Želimo Doseči** (Enostavno označevanje) | Operacija, ki preklopi logično stanje naloge (`completed`) z enega klika, kar omogoča hiter in pregleden pregled dela. |
-| **CRUD** | **Kaj Želimo Doseči** (Osnovno upravljanje) | Standardne operacije (Ustvari, Beri, Posodobi, Izbriši), ki uporabniku omogočajo, da naloge **ureja ali izbriše brez težav**. |
-| **Repozitorij (Repository)** | **Učna Vrednost** (Delo z bazama) | Vmesnik, ki skrbi za varno in direktno komunikaciju z **MySQL podatkovno bazo** (podatki so varno shranjeni). |
-| **Frontend** | **Problem, ki ga Rešujemo** (Pregleden vmesnik) | React aplikacija, ki služi kot **pregleden in hiter vmesnik** za uporabnika. |
-| **Backend** | **Tehnološka Prednost** (Arhitektura mikrostoritev) | Spring Boot aplikacija, ki skrbi za API logiku i podatkovni dostop, in predstavlja srce **mikrostoritvene arhitekture**. |
-
+| Izraz (Termin)                     | Povezava z Vizijo Projekta                                 | Razlaga v Kontekstu Aplikacije                                                                                                                           |
+| :--------------------------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Full-Stack**                     | **Tehnološka Prednost** (Popolna rešitev)                  | Aplikacija, ki obsega tako uporabniški vmesnik (React Frontend) kot strežniško logiko in podatkovno bazo (Spring Boot Backend).                          |
+| **Kontejnerizacija**               | **Tehnološka Prednost** (Enostavna postavitev)             | Postopek pakiranja aplikacije in njene baze podatkov (MySQL) v izolirane in prenosljive Docker kontejnerje.                                              |
+| **Entitet _Todo_**                 | **Namen Aplikacije** (Osnovna enota dela)                  | Objekt, ki predstavlja eno samo opravilo. Vsebuje polja **`name`**, **`completed`** in **`dueDate`**.                                                    |
+| **DueDate (Rok)**                  | **Prihodnji Cilj** (Upravljanje z roki)                    | Polje tipa `LocalDate` v entitetu `Todo`, ki omogoča uporabniku, da **nastavi roke** za naloge, kar je ključno za zmanjšanje stresa.                     |
+| **Query Parameter**                | **Problem, ki ga Rešujemo** (Napredno iskanje/filtriranje) | Del URL-ja (`/api/todos?search=posel`), ki se uporablja za pošiljanje pogojev za **filtriranje** in **iskanje** podatkov na backend.                     |
+| **Soritveni Sloj (Service Layer)** | **Tehnološka Prednost** (Profesionalni pristop)            | Sloj v Spring Bootu, kjer se izvaja kompleksna **poslovna logika** – vključno z logiko za napredno iskanje in filtriranje, ki je izpostavljena v Viziji. |
+| **RESTful API**                    | **Tehnološka Prednost** (Prihodnje razširitve)             | Sklop pravil za komunikacijo med frontendom in backendom, ki omogoča enostaven razvoj **Mobilne aplikacije** in drugih integracij v prihodnosti.         |
+| **Toggle**                         | **Kaj Želimo Doseči** (Enostavno označevanje)              | Operacija, ki preklopi logično stanje naloge (`completed`) z enega klika, kar omogoča hiter in pregleden pregled dela.                                   |
+| **CRUD**                           | **Kaj Želimo Doseči** (Osnovno upravljanje)                | Standardne operacije (Ustvari, Beri, Posodobi, Izbriši), ki uporabniku omogočajo, da naloge **ureja ali izbriše brez težav**.                            |
+| **Repozitorij (Repository)**       | **Učna Vrednost** (Delo z bazama)                          | Vmesnik, ki skrbi za varno in direktno komunikaciju z **MySQL podatkovno bazo** (podatki so varno shranjeni).                                            |
+| **Frontend**                       | **Problem, ki ga Rešujemo** (Pregleden vmesnik)            | React aplikacija, ki služi kot **pregleden in hiter vmesnik** za uporabnika.                                                                             |
+| **Backend**                        | **Tehnološka Prednost** (Arhitektura mikrostoritev)        | Spring Boot aplikacija, ki skrbi za API logiku i podatkovni dostop, in predstavlja srce **mikrostoritvene arhitekture**.                                 |
+|                                    |
 
 ---
 
-##  Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
+## DPU Diagram
+
+![DPU Diagram](C:\Users\Sekulovic\Pictures\Screenshots\Screenshot 2025-11-14 192805.png)
+
+## Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
 
 Ta del je namenjen članom ekipe in bodočim razvijalcem.
 
@@ -143,33 +147,33 @@ Ta del je namenjen članom ekipe in bodočim razvijalcem.
 
 Glavni projekt je razdeljen na dve pod-direktorija (Mikrostoritve):
 
-| Direktorij/Datoteka | Vsebina in Namen |
-| :--- | :--- |
-| **`todo-backend/`** | Vsebuje vso **Java/Spring Boot** izvorno kodo, Dockerfile in `docker-compose.yml`. |
-| **`todo-frontend/`** | Vsebuje vso **React/JavaScript** izvorno kodo (Vite). |
-| `README.md` | Glavna dokumentacija in navodila. |
+| Direktorij/Datoteka  | Vsebina in Namen                                                                            |
+| :------------------- | :------------------------------------------------------------------------------------------ |
+| **`todo-backend/`**  | Vsebuje vso **Java/Spring Boot** izvorno kodo, Dockerfile in `docker-compose.yml`.          |
+| **`todo-frontend/`** | Vsebuje vso **React/JavaScript** izvorno kodo (Vite).                                       |
+| `README.md`          | Glavna dokumentacija in navodila.                                                           |
 | `docker-compose.yml` | **Glavna konfiguracijska datoteka za Docker**, določa storitve (backend, MySQL) in omrežje. |
 
-### 1.2. Orodja, Okvirji in Različice (Informacije o Uporabljenih Orodjih, Frameworkih in Različicah)
+### 1.3. Orodja, Okvirji in Različice (Informacije o Uporabljenih Orodjih, Frameworkih in Različicah)
 
-* **Jezik (Zaledje):** **Java 21**
-* **Okvir (Zaledje):** **Spring Boot 3.x** (s Spring Data JPA in REST)
-* **Jezik (Sprednji del):** **JavaScript/JSX**
-* **Okvir (Sprednji del):** **React 18** (z Vite)
-* **Podatkovna Baza:** **MySQL 8.0**
-* **Kontejnerizacija:** **Docker** in **Docker Compose**
-* **Upravljanje Odvisnosti:** **Maven (za Java)** in **npm (za Node/React)**
+- **Jezik (Zaledje):** **Java 21**
+- **Okvir (Zaledje):** **Spring Boot 3.x** (s Spring Data JPA in REST)
+- **Jezik (Sprednji del):** **JavaScript/JSX**
+- **Okvir (Sprednji del):** **React 18** (z Vite)
+- **Podatkovna Baza:** **MySQL 8.0**
+- **Kontejnerizacija:** **Docker** in **Docker Compose**
+- **Upravljanje Odvisnosti:** **Maven (za Java)** in **npm (za Node/React)**
 
 ### 1.3. Standardi Kodiranja (Standardi Kodiranja)
 
-* Uporabljamo standardne **CamelCase** konvencije za Java razrede in metode (`TodoController`).
-* Uporabljamo **PascalCase** za React komponente (`TodoForm`, `FilterForm`).
-* Uporabljena je struktura **Controller -> Service -> Repository** za ločevanje poslovne logike.
-* Za formatiranje kode uporabljamo avtomatska orodja **IntelliJ IDEA/VS Code** (privzete nastavitve), da bi bila koda čitljiva.
+- Uporabljamo standardne **CamelCase** konvencije za Java razrede in metode (`TodoController`).
+- Uporabljamo **PascalCase** za React komponente (`TodoForm`, `FilterForm`).
+- Uporabljena je struktura **Controller -> Service -> Repository** za ločevanje poslovne logike.
+- Za formatiranje kode uporabljamo avtomatska orodja **IntelliJ IDEA/VS Code** (privzete nastavitve), da bi bila koda čitljiva.
 
-***
+---
 
-##  Navodila za Zagon Aplikacije (Navodila za Zagon Aplikacije)
+## Navodila za Zagon Aplikacije (Navodila za Zagon Aplikacije)
 
 Aplikacija je kontejnerizirana in se zažene z uporabo Docker Compose.
 
@@ -177,73 +181,79 @@ Aplikacija je kontejnerizirana in se zažene z uporabo Docker Compose.
 
 Pred zagonom aplikacije se prepričajte, da imate nameščeno naslednje:
 
-* **Git**
-* **Docker Desktop** (ki vključuje Docker in Docker Compose)
-* **Node.js in npm** (za zagon sprednjega dela)
+- **Git**
+- **Docker Desktop** (ki vključuje Docker in Docker Compose)
+- **Node.js in npm** (za zagon sprednjega dela)
 
 ### Koraki
 
 1. **Kloniranje Repozitorija:**
-    ```bash
-    git clone [https://github.com/PetarKojadinovic/RIS_projekt.git]
-    cd RIS_PROJEKT
-    ```
+
+   ```bash
+   git clone [https://github.com/PetarKojadinovic/RIS_projekt.git]
+   cd RIS_PROJEKT
+   ```
 
 2. **Zagon Zalednega Sklada (MySQL in Spring Boot):**
-    Ta korak prevede Java kodo, ustvari Docker slike in zažene storitvi MySQL in Spring Boot na vratih **3307** in **8080**.
-    ```bash
-    cd todo-backend
-    docker compose up --build
-    ```
-    *(Pustite ta terminal odprt)*
+   Ta korak prevede Java kodo, ustvari Docker slike in zažene storitvi MySQL in Spring Boot na vratih **3307** in **8080**.
+
+   ```bash
+   cd todo-backend
+   docker compose up --build
+   ```
+
+   _(Pustite ta terminal odprt)_
 
 3. **Zagon Sprednjega Dela (React):**
-    Odprite nov terminal in zaženite sprednji del.
-    ```bash
-    cd ../todo-frontend
-    npm install
-    npm run dev
-    ```
-    Aplikacija bi se zdaj morala samodejno odpreti v brskalniku na naslovu **`http://localhost:5173`**.
+   Odprite nov terminal in zaženite sprednji del.
+   ```bash
+   cd ../todo-frontend
+   npm install
+   npm run dev
+   ```
+   Aplikacija bi se zdaj morala samodejno odpreti v brskalniku na naslovu **`http://localhost:5173`**.
 
-***
+---
 
-##  Funkcionalnost
+## Funkcionalnost
 
 Aplikacija podpira naslednje funkcionalnosti:
 
-* **Ustvarjanje:** Dodajanje naloge z imenom in izbirnim rokom.
-* **Branje:** Prikaz seznama vseh nalog.
-* **Posodabljanje (Urejanje):** Popolno urejanje imena in roka obstoječe naloge.
-* **Brisanje:** Odstranjevanje naloge iz baze.
-* **Sprememba Statusa:** Označevanje naloge kot dokončane/nedokončane.
-* **NAPREDNO FILTRIRANJE:**
-    * Iskanje po ključni besedi (v imenu naloge).
-    * Filtriranje po statusu (Vse, Dokončane, Nedokončane).
+- **Ustvarjanje:** Dodajanje naloge z imenom in izbirnim rokom.
+- **Branje:** Prikaz seznama vseh nalog.
+- **Posodabljanje (Urejanje):** Popolno urejanje imena in roka obstoječe naloge.
+- **Brisanje:** Odstranjevanje naloge iz baze.
+- **Sprememba Statusa:** Označevanje naloge kot dokončane/nedokončane.
+- **NAPREDNO FILTRIRANJE:**
+  - Iskanje po ključni besedi (v imenu naloge).
+  - Filtriranje po statusu (Vse, Dokončane, Nedokončane).
 
-***
+---
 
-##  Navodila za Razvijalce (Navodila za Prispevanje/Sodelovanje)
+## Navodila za Razvijalce (Navodila za Prispevanje/Sodelovanje)
 
 Naslednji koraki se nanašajo na Git potek dela znotraj vaše ekipe.
 
 1. **Prenos Najnovejših Spremem:**
-    ```bash
-    git pull origin main
-    ```
+
+   ```bash
+   git pull origin main
+   ```
 
 2. **Ustvarjanje Nove Veje (Branch):**
-    ```bash
-    git checkout -b feature/ime-funkcionalnosti
-    ```
+
+   ```bash
+   git checkout -b feature/ime-funkcionalnosti
+   ```
 
 3. **Commits in Potisk (Push):**
-    ```bash
-    git add .
-    git commit -m "feat: Dodana validacija uporabniškega vnosa"
-    git push origin feature/ime-funkcionalnosti
-    ```
+
+   ```bash
+   git add .
+   git commit -m "feat: Dodana validacija uporabniškega vnosa"
+   git push origin feature/ime-funkcionalnosti
+   ```
 
 4. **Ustvarjanje Pull Requesta (PR):**
-    * Na GitHubu ustvarite **Pull Request** (Zahtevek za združitev) iz vaše veje (`feature/...`) v glavno vejo (`main`).
-    * Počakajte, da **vsaj en član ekipe/asistent pregleda (review)** vašo kodo in odobri združitev.
+   - Na GitHubu ustvarite **Pull Request** (Zahtevek za združitev) iz vaše veje (`feature/...`) v glavno vejo (`main`).
+   - Počakajte, da **vsaj en član ekipe/asistent pregleda (review)** vašo kodo in odobri združitev.
