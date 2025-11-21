@@ -169,7 +169,7 @@ V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in k
 
 ## DPU Diagram
 
-<img width="2230" height="1411" alt="DPU_drugaVerzija" src="https://github.com/user-attachments/assets/8879937d-c4d5-4e28-a0b3-18b6d5ae483e" />
+<img width="2230" height="1411" alt="DPU_drugaVerzija" src="https://github.com/user-attachments/assets/994ca2a1-9f77-4c4b-a953-21b7ab22dcf1" />
 
 ## Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
 
