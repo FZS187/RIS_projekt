@@ -133,6 +133,38 @@ V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in k
 | **Backend**                        | **Tehnološka Prednost** (Arhitektura mikrostoritev)        | Spring Boot aplikacija, ki skrbi za API logiku i podatkovni dostop, in predstavlja srce **mikrostoritvene arhitekture**.                                 |
 |                                    |
 
+| **Primer uporabe:** Pregled napredka uporabnika                                                                        | **ID:** PU-PN1 |
+| ---------------------------------------------------------------------------------------------------------------------- | -------------- |
+| **Cilj:** Uporabnik želi pridobiti pregled nad svojim napredkom – koliko nalog je opravljenih in koliko jih še ostaja. |
+| **Akterji:** Registrirani uporabnik, sistem                                                                            |
+| **Predpogoji:** Uporabnik mora biti prijavljen in mora imeti vsaj eno ustvarjeno nalogo.                               |
+| **Stanje sistema po PU:** Sistem ostane nespremenjen; prikaže se le izračun statistike.                                |
+| **Scenarij:**                                                                                                          |
+| 1. Uporabnik v meniju izbere »Pregled napredka«.                                                                       |
+| 2. Sistem izračuna število opravljenih in neopravljenih nalog.                                                         |
+| 3. Sistem prikaže statistiko in grafični prikaz napredka.                                                              |
+| 4. Uporabnik lahko klikne na neopravljen nalog.                                                                        |
+| 5. Sistem ponudi možnost »Označi kot opravljeno« (extend PU-PN2).                                                      |
+| **Alternativni tokovi:** Če uporabnik nima nalog, sistem prikaže obvestilo: »Ni nalog za prikaz napredka.«             |
+| **Izjeme:** Napaka pri izračunu statistike – sistem prikaže sporočilo »Napaka pri pridobivanju podatkov.«              |
+
+---
+
+| **Primer uporabe:** Označi nalogo kot opravljeno                                                             | **ID:** PU-PN2 |
+| ------------------------------------------------------------------------------------------------------------ | -------------- |
+| **Cilj:** Uporabnik želi iz pogleda napredka označiti nalogo kot opravljeno.                                 |
+| **Akterji:** Registrirani uporabnik, sistem                                                                  |
+| **Predpogoji:** Naloga mora biti v statusu »neopravljeno«. Uporabnik mora biti v pogledu »Pregled napredka«. |
+| **Stanje sistema po PU:** Status naloge se spremeni v »opravljeno«, statistika napredka se posodobi.         |
+| **Scenarij:**                                                                                                |
+| 1. Uporabnik klikne na neopravljen nalog v pregledu napredka.                                                |
+| 2. Sistem prikaže možnost »Označi kot opravljeno«.                                                           |
+| 3. Uporabnik potrdi možnost.                                                                                 |
+| 4. Sistem posodobi status naloge.                                                                            |
+| 5. Sistem ponovno izračuna napredek in osveži prikaz.                                                        |
+| **Alternativni tokovi:** Uporabnik prekliče opravilo – sistem ne izvede sprememb.                            |
+| **Izjeme:** Sistem ne uspe posodobiti naloge in prikaže sporočilo »Posodobitev ni uspela.«                   |
+
 ---
 
 ## DPU Diagram
