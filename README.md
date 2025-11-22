@@ -129,7 +129,7 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 | **Iskanje** | **Problem, ki ga Rešujemo** (Hitro iskanje) | Funkcija, ki omogoča hitro lociranje nalog z uporabo **ključne besede** znotraj imena naloge. |
 | **Urejanje** | **Kaj Želimo Doseči** (Sprememba podatkov) | Možnost, da uporabnik vstopi v 'Edit Mode' in popravi ali posodobi Ime in Rok obstoječe naloge. |
 | **Preklop Statusa (Toggle)**| **Kaj Želimo Doseči** (Enostavno označevanje) | Hitra akcija (običajno s klikom na Checkbox), ki spremeni Status naloge iz aktivne v dokončano in obratno. |
-| **CRUD** | **Urejanje Nalog** (Popoln nadzor) | Akronim za vse temeljne operacije: ustvarjanje, branje, posodabljanje in brisanje nalog. |
+| **CRUD** | **Urejanje Nalog** (Popoln nadzor) | Akronim za vse temeljne operacije (Ustvari, Beri, Posodobi, Izbriši), ki uporabniku omogočajo, da naloge ureja ali izbriše. |
 
 ---
 
@@ -137,152 +137,152 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 
 Ove tabele opisuju funkcionalne zahteve za svaki element u dijagramu, podeljene po akterima.
 
-### Akter: Registrovani Korisnik
+### Akter: Registrirani Uporabnik
 
 | Primer uporabe: **DODAJANJE NALOG** | ID: **PU-01** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi da doda novu stavku u svoj spisak obaveza. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Korisnik je prijavljen u sistem. |
-| **Stanje sistema nakon PU:** Nova stavka obaveze je trajno sačuvana i vidljiva na spisku. |
-| **Scenario:** |
-| 1. Korisnik izabere opciju **"Dodaj novu nalogo"**. |
-| 2. Sistem prikazuje polje za unos teksta i opcionalno polje za rok. |
-| 3. Korisnik unese tekstualni opis zadatka. |
-| 4. Korisnik potvrdi unos. |
-| 5. Sistem validira podatke, čuva novu stavku i osvežava listu. |
-| **Alternativni tokovi:** Korisnik prekida unos (pre nego što se sačuva) → Zadatak se ne dodaje. |
-| **Izuzeci:** Nevalidan unos (npr. prazan naslov) → Sistem prikazuje poruku o grešci. |
+| **Cilj:** Uporabnik želi dodati novo nalogo v svoj seznam opravil. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Uporabnik je prijavljen v sistem. |
+| **Stanje sistema po PU:** Nova naloga je trajno shranjena in vidna na seznamu. |
+| **Scenarij:** |
+| 1. Uporabnik izbere možnost **"Dodaj novo nalogo"**. |
+| 2. Sistem prikaže polje za vnos teksta in opcijsko polje za rok. |
+| 3. Uporabnik vnese tekstualni opis naloge. |
+| 4. Uporabnik potrdi vnos. |
+| 5. Sistem validira podatke, shrani novo nalogo in osveži seznam. |
+| **Alternativni tokovi:** Uporabnik prekine vnos (pred shranjevanjem) → Naloga se ne doda. |
+| **Izuzeci:** Neveljaven vnos (npr. prazen naslov) → Sistem prikaže sporočilo o napaki. |
 
 ---
 
 | Primer uporabe: **UREJANJE NALOG** | ID: **PU-02** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi da promeni tekst ili rok postojeće stavke. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Stavka mora postojati u bazi. |
-| **Stanje sistema nakon PU:** Podaci o stavci su ažurirani u bazi. |
-| **Scenario:** |
-| 1. Korisnik pronađe stavku koju želi da uredi. |
-| 2. Korisnik pokreće opciju **"Uređivanje"** (npr. klikom na ikonu za olovku). |
-| 3. Sistem prikazuje formu za uređivanje sa trenutnim podacima. |
-| 4. Korisnik menja tekst zadatka i/ili rok. |
-| 5. Korisnik sačuva izmene. |
-| 6. Sistem validira, ažurira stavku u bazi i osvežava prikaz. |
-| **Alternativni tokovi:** Korisnik poništi promene → Zadatak ostaje nepromenjen. |
-| **Izuzeci:** Neuspešno ažuriranje baze → Sistem javlja "Greška pri čuvanju izmena." |
+| **Cilj:** Uporabnik želi spremeniti tekst ali rok obstoječe naloge. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Naloga mora obstajati v bazi. |
+| **Stanje sistema po PU:** Podatki o nalogi so posodobljeni v bazi. |
+| **Scenarij:** |
+| 1. Uporabnik poišče nalogo, ki jo želi urediti. |
+| 2. Uporabnik sproži možnost **"Urejanje"** (npr. klik na ikono za svinčnik). |
+| 3. Sistem prikaže obrazec za urejanje z obstoječimi podatki. |
+| 4. Uporabnik spremeni tekst naloge in/ali rok. |
+| 5. Uporabnik shrani spremembe. |
+| 6. Sistem validira, posodobi nalogo v bazi in osveži prikaz. |
+| **Alternativni tokovi:** Uporabnik prekliče spremembe → Naloga ostane nespremenjena. |
+| **Izuzeci:** Neuspešno posodabljanje baze → Sistem sporoči "Napaka pri shranjevanju sprememb." |
 
 ---
 
 | Primer uporabe: **BRISANJE NALOG** | ID: **PU-03** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi trajno da ukloni zadatak sa svog spiska. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Stavka mora postojati. |
-| **Stanje sistema nakon PU:** Stavka je trajno uklonjena iz baze podataka. |
-| **Scenario:** |
-| 1. Korisnik izabere stavku za brisanje. |
-| 2. Korisnik pokreće opciju **"Brisanje"**. |
-| 3. Sistem traži potvrdu: "Da li ste sigurni da želite obrisati nalogo?". |
-| 4. Korisnik potvrdi brisanje. |
-| 5. Sistem uklanja stavku iz baze i osvežava listu. |
-| **Alternativni tokovi:** Korisnik otkaže brisanje → Stavka ostaje na spisku. |
-| **Izuzeci:** Greška u komunikaciji sa serverom/bazom → Sistem prikazuje poruku o neuspehu. |
+| **Cilj:** Uporabnik želi trajno odstraniti nalogo s svojega seznama. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Naloga mora obstajati. |
+| **Stanje sistema po PU:** Naloga je trajno odstranjena iz podatkovne baze. |
+| **Scenarij:** |
+| 1. Uporabnik izbere nalogo za brisanje. |
+| 2. Uporabnik sproži možnost **"Brisanje"**. |
+| 3. Sistem zahteva potrditev: "Ali ste prepričani, da želite izbrisati nalogo?". |
+| 4. Uporabnik potrdi brisanje. |
+| 5. Sistem odstrani nalogo iz baze in osveži seznam. |
+| **Alternativni tokovi:** Uporabnik prekliče brisanje → Naloga ostane na seznamu. |
+| **Izuzeci:** Napaka v komunikaciji s strežnikom/bazo → Sistem prikaže sporočilo o neuspehu. |
 
 ---
 
 | Primer uporabe: **OZNAČEVANJE NALOG KOT KONČANE** | ID: **PU-04** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi brzo da označi zadatak kao završen ili da poništi status završenog zadatka. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Stavka mora postojati. |
-| **Stanje sistema nakon PU:** Status stavke (`completed`) je preklopljen (True/False) i sačuvan u bazi. |
-| **Scenario:** |
-| 1. Korisnik klikne na element za prebacivanje statusa (npr. Checkbox) pored zadatka. |
-| 2. Sistem automatski ažurira status u bazi. |
-| 3. Sistem osvežava prikaz (npr. zadatak se prebriše ili premesti). |
-| **Alternativni tokovi:** Ažuriranje ne uspe zbog filterskih podešavanja → Zadatak nestaje iz trenutno filtriranog prikaza. |
-| **Izuzeci:** Neuspešno ažuriranje statusa na serveru → Sistem javlja "Greška pri ažuriranju statusa." |
+| **Cilj:** Uporabnik želi hitro označiti nalogo kot končano ali pa status končane naloge ponastaviti. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Naloga mora obstajati. |
+| **Stanje sistema po PU:** Status naloge (`completed`) se preklopi (True/False) in shrani v bazo. |
+| **Scenarij:** |
+| 1. Uporabnik klikne na element za preklapljanje statusa (npr. kljukico/checkbox) poleg naloge. |
+| 2. Sistem avtomatsko posodobi status v bazi. |
+| 3. Sistem osveži prikaz (npr. končana naloga postane prečrtana). |
+| **Alternativni tokovi:** Posodobitev ne uspe zaradi nastavitev filtra → Naloga izgine iz trenutno filtriranega pogleda. |
+| **Izuzeci:** Neuspešno posodabljanje statusa na strežniku → Sistem javi "Napaka pri posodabljanju statusa." |
 
 ---
 
 | Primer uporabe: **NASTAVLJANJE ROKOV** | ID: **PU-05** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi da postavi obavezni datum roka za zadatak. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Stavka mora biti dodata ili se dodaje. |
-| **Stanje sistema nakon PU:** Stavci je dodan validan datum roka (`dueDate`). |
-| **Scenario:** |
-| 1. Korisnik pokreće **Dodavanje** (PU-01) ili **Uređivanje** (PU-02) zadatka. |
-| 2. Korisnik koristi birač datuma (Date Picker) da odabere rok. |
-| 3. Korisnik čuva zadatak. |
-| 4. **EXTEND:** Ukoliko je rok blizu (npr. unutar 24h), sistem automatski nudi opciju **Nastavi opomnik** (PU-11). |
-| **Alternativni tokovi:** Korisnik izbriše postojeći rok → sistem shrani nalogo brez roka. |
-| **Izuzeci:** Datum roka je u preteklosti → sistem opozori uporabnika, a shrani. |
+| **Cilj:** Uporabnik želi nalogi dodeliti obvezen datum dokončanja. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Naloga mora biti dodana ali se dodaja. |
+| **Stanje sistema po PU:** Nalogi je dodan veljaven datum roka (`dueDate`). |
+| **Scenarij:** |
+| 1. Uporabnik sproži **Dodajanje** (PU-01) ali **Urejanje** (PU-02) naloge. |
+| 2. Uporabnik uporabi izbirnik datuma (Date Picker) za izbiro roka. |
+| 3. Uporabnik shrani nalogo. |
+| 4. **EXTEND:** Če je rok blizu (npr. znotraj 24h), sistem avtomatsko ponudi možnost **Nastavi opomnik** (PU-11). |
+| **Alternativni tokovi:** Uporabnik izbriše obstoječi rok → Sistem shrani nalogo brez roka. |
+| **Izuzeci:** Datum roka je v preteklosti → Sistem opozori uporabnika, a shrani. |
 
 ---
 
 | Primer uporabe: **ISKANJE NALOG** | ID: **PU-06** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi brzo da pronađe zadatke koji sadrže određenu ključnu reč. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Postoji spisak zadataka. |
-| **Stanje sistema nakon PU:** Spisak je dinamički filtriran da prikaže samo podudarne zadatke. |
-| **Scenario:** |
-| 1. Korisnik unosi ključnu reč u polje za pretragu. |
-| 2. Sistem šalje zahtev serveru sa ključnom reči. |
-| 3. Server vraća samo zadatke čiji tekst sadrži ključnu reč. |
-| 4. Sistem prikazuje skraćeni, filtrirani spisak. |
-| **Alternativni tokovi:** Nema rezultata za ključnu reč → Sistem prikazuje: "Ni najdenih nalog." |
-| **Izuzeci:** Greška u komunikaciji → Sistem prikazuje spisak bez filtera uz upozorenje. |
+| **Cilj:** Uporabnik želi hitro najti naloge, ki vsebujejo določeno ključno besedo. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Obstaja seznam nalog. |
+| **Stanje sistema po PU:** Seznam je dinamično filtriran, da prikaže le ujemajoče se naloge. |
+| **Scenarij:** |
+| 1. Uporabnik vnese ključno besedo v iskalno polje. |
+| 2. Sistem pošlje zahtevo strežniku s ključno besedo. |
+| 3. Strežnik vrne samo naloge, katerih besedilo vsebuje ključno besedo. |
+| 4. Sistem prikaže skrajšani, filtrirani seznam. |
+| **Alternativni tokovi:** Ni rezultatov za ključno besedo → Sistem prikaže: "Ni najdenih nalog." |
+| **Izuzeci:** Napaka v komunikaciji → Sistem prikaže seznam brez filtra z opozorilom. |
 
 ---
 
 | Primer uporabe: **FILTRIRANJE PO STATUSU** | ID: **PU-07** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi da prikaže samo određeni subset zadataka (npr. samo završene ili samo nezavršene). |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Postoji spisak zadataka. |
-| **Stanje sistema nakon PU:** Spisak je filtriran da prikaže samo zadatke sa izabranim statusom. |
-| **Scenario:** |
-| 1. Korisnik izabere opciju filtriranja (npr. "Nedokončane" ali "Dokončane"). |
-| 2. Sistem šalje zahtev serveru sa parametrom statusa. |
-| 3. Server vraća samo zadatke koji odgovaraju statusu. |
-| 4. Sistem prikazuje filtrirani spisak. |
-| **Alternativni tokovi:** Korisnik izabere "Sve" → Sistem prikazuje celokupan spisak. |
-| **Izuzeci:** Greška u komunikaciji → Sistem prikazuje spisak bez filtera uz upozorenje. |
+| **Cilj:** Uporabnik želi prikazati le določen podnabor nalog (npr. samo končane ali samo nekončane). |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Obstaja seznam nalog. |
+| **Stanje sistema po PU:** Seznam je filtriran, da prikaže samo naloge z izbranim statusom. |
+| **Scenarij:** |
+| 1. Uporabnik izbere opcijo filtriranja (npr. "Nedokončane" ali "Dokončane"). |
+| 2. Sistem pošlje zahtevo strežniku s parametrom statusa. |
+| 3. Strežnik vrne samo naloge, ki ustrezajo statusu. |
+| 4. Sistem prikaže filtrirani seznam. |
+| **Alternativni tokovi:** Uporabnik izbere "Vse" → Sistem prikaže celoten seznam. |
+| **Izuzeci:** Napaka v komunikaciji → Sistem prikaže seznam brez filtra z opozorilom. |
 
 ---
 
 | Primer uporabe: **PREGLED NAPREDKA** | ID: **PU-08** |
 | :--- | :--- |
-| **Cilj:** Korisnik želi da stekne vizuelni uvid u svoj napredak (koliko je završeno/nezavršeno). |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Korisnik mora imati barem jednu stavku. |
-| **Stanje sistema nakon PU:** Prikazana je statistika; podaci ostaju nepromenjeni. |
-| **Scenario:** |
-| 1. Korisnik izabere opciju **"Pregled napredka"** (biće implementirano u budućnosti). |
-| 2. Sistem izračunava procenat završenih zadataka. |
-| 3. Sistem prikazuje grafički prikaz (npr. krug dijagram) i sumarnu statistiku. |
-| **Alternativni tokovi:** Nema zadataka → Sistem prikazuje poruku: "Nema nalog za prikaz napredka." |
-| **Izuzeci:** Greška pri preuzimanju statistike → Sistem prikazuje poruku o grešci. |
+| **Cilj:** Uporabnik želi pridobiti vizualni vpogled v svoj napredek (koliko je dokončano/nedokončano). |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Uporabnik mora imeti vsaj eno nalogo. |
+| **Stanje sistema po PU:** Prikazana je statistika; podatki ostanejo nespremenjeni. |
+| **Scenarij:** |
+| 1. Uporabnik izbere opcijo **"Pregled napredka"** (bo implementirano v prihodnosti). |
+| 2. Sistem izračuna odstotek dokončanih nalog. |
+| 3. Sistem prikaže grafični prikaz (npr. tortni diagram) in povzetek statistike. |
+| **Alternativni tokovi:** Ni nalog → Sistem prikaže sporočilo: "Ni nalog za prikaz napredka." |
+| **Izuzeci:** Napaka pri pridobivanju statistike → Sistem prikaže sporočilo o napaki. |
 
 ---
 
 | Primer uporabe: **NASTAVI OPOMNIK** | ID: **PU-11** |
 | :--- | :--- |
-| **Tip:** Proširenje (Extend) **NASTAVLJANJE ROKOV** (PU-05) |
-| **Cilj:** Korisnik želi da postavi automatski opomnik na svoj rok. |
-| **Akteri:** Registrovani Korisnik, Sistem |
-| **Preduslovi:** Korisnik je upravo postavio rok (PU-05). |
-| **Stanje sistema nakon PU:** Kreiran je opomnik u sistemu koji se aktivira pre roka. |
-| **Scenario:** |
-| 1. Sistem detektuje da je rok blizu ili da je nova stavka sa rokom sačuvana (pokreće se iz PU-05). |
-| 2. Sistem automatski nudi opciju za **"Nastavi opomnik"**. |
-| 3. Korisnik potvrdi opomnik. |
-| 4. Sistem kreira sistemski opomnik za zadatu stavku. |
-| **Alternativni tokovi:** Korisnik odbije opomnik → Opomnik se ne postavlja. |
-| **Izuzeci:** Greška pri kreiranju opomnika → Sistem javlja da opomnik nije postavljen. |
+| **Tip:** Razširitev (Extend) **NASTAVLJANJE ROKOV** (PU-05) |
+| **Cilj:** Uporabnik želi samodejno nastaviti opomnik za svoj rok. |
+| **Akteri:** Registrirani Uporabnik, Sistem |
+| **Predpogoji:** Uporabnik je pravkar nastavil rok (PU-05). |
+| **Stanje sistema po PU:** V sistemu je ustvarjen opomnik, ki se aktivira pred rokom. |
+| **Scenarij:** |
+| 1. Sistem zazna, da je rok blizu ali da je nova naloga z rokom shranjena (sproži se iz PU-05). |
+| 2. Sistem avtomatsko ponudi možnost **"Nastavi opomnik"**. |
+| 3. Uporabnik potrdi opomnik. |
+| 4. Sistem ustvari sistemski opomnik za določeno nalogo. |
+| **Alternativni tokovi:** Uporabnik zavrne opomnik → Opomnik se ne nastavi. |
+| **Izuzeci:** Napaka pri ustvarjanju opomnika → Sistem javi, da opomnik ni bil nastavljen. |
 
 ---
 ---
@@ -291,50 +291,50 @@ Ove tabele opisuju funkcionalne zahteve za svaki element u dijagramu, podeljene 
 
 | Primer uporabe: **UPRAVLJANJE UPORABNIKOV** | ID: **PU-A1** |
 | :--- | :--- |
-| **Cilj:** Administrator želi da nadgleda i menja privilegije registrovanih korisnika. |
+| **Cilj:** Administrator želi nadzorovati in spreminjati privilegije registriranih uporabnikov. |
 | **Akteri:** Admin, Sistem |
-| **Preduslovi:** Admin je uspešno prijavljen u sistem. |
-| **Stanje sistema nakon PU:** Podaci o korisnicima su modifikovani (npr. promena uloge, brisanje). |
-| **Scenario:** |
-| 1. Admin izabere opciju **"Upravljanje uporabnikov"**. |
-| 2. Sistem prikazuje listu svih korisnika, njihove uloge i statuse. |
-| 3. Admin izabere korisnika za editovanje/brisanje. |
-| 4. Admin izvrši željenu promenu (npr. menja ulogu u "Admin" ili briše nalog). |
-| 5. Sistem validira, primenjuje promene i osvežava listu. |
-| **Alternativni tokovi:** Admin otkaže operaciju → Promene nisu sačuvane. |
-| **Izuzeci:** Admin pokušava da obriše svoj nalog → Sistem odbija akciju: "Brisanje sopstvenog naloga ni dovoljeno." |
+| **Predpogoji:** Admin je uspešno prijavljen v sistem. |
+| **Stanje sistema po PU:** Podatki o uporabnikih so spremenjeni (npr. sprememba vloge, brisanje). |
+| **Scenarij:** |
+| 1. Admin izbere opcijo **"Upravljanje uporabnikov"**. |
+| 2. Sistem prikaže seznam vseh registriranih uporabnikov, njihove vloge in statuse. |
+| 3. Admin izbere uporabnika za urejanje/brisanje. |
+| 4. Admin izvede želeno spremembo (npr. spremeni vlogo v "Admin" ali izbriše račun). |
+| 5. Sistem validira, izvede spremembe in osveži seznam. |
+| **Alternativni tokovi:** Admin prekliče operacijo → Spremembe niso shranjene. |
+| **Izuzeci:** Admin poskuša izbrisati lastni račun → Sistem zavrne dejanje: "Izbris lastnega računa ni dovoljen." |
 
 ---
 
 | Primer uporabe: **PREGLED STATISTIKE SISTEMA** | ID: **PU-A2** |
 | :--- | :--- |
-| **Cilj:** Administrator želi da vidi agregirane podatke o korišćenju aplikacije. |
+| **Cilj:** Administrator želi videti zbirne podatke o uporabi aplikacije. |
 | **Akteri:** Admin, Sistem |
-| **Preduslovi:** Admin je prijavljen. |
-| **Stanje sistema nakon PU:** Prikazani su statistički podaci; podaci u bazi ostaju nepromenjeni. |
-| **Scenario:** |
-| 1. Admin izabere opciju **"Pregled statistike sistema"**. |
-| 2. Sistem prikuplja sumarne podatke (ukupan broj nalog, broj korisnika, procenat završenih zadataka, itd.). |
-| 3. Sistem prikazuje izveštaj i/ili dijagrame statistike. |
-| **Alternativni tokovi:** Prikaz statistike ne uspe → sistem prikaže obvestilo: "Podatkov ni bilo mogoče naložiti." |
-| **Izuzeci:** Greška pri izračunavanju statistike (npr. neuspešna SQL poizvedba) → Prikazuje se poruka o grešci. |
+| **Predpogoji:** Admin je prijavljen. |
+| **Stanje sistema po PU:** Prikazani so statistični podatki; podatki v bazi ostanejo nespremenjeni. |
+| **Scenarij:** |
+| 1. Admin izbere opcijo **"Pregled statistike sistema"**. |
+| 2. Sistem zbere zbirne podatke (skupno število nalog, število uporabnikov, odstotek dokončanih nalog itd.). |
+| 3. Sistem prikaže poročilo in/ali diagrame statistike. |
+| **Alternativni tokovi:** Ni podatkov za prikaz → Sistem javi, da statistika ni na voljo. |
+| **Izuzeci:** Napaka pri izračunu statistike (npr. neuspešna SQL poizvedba) → Prikazano je sporočilo o napaki. |
 
 ---
 
 | Primer uporabe: **DODAJANJE NOVIH KATEGORIJ** | ID: **PU-A3** |
 | :--- | :--- |
-| **Cilj:** Administrator želi da doda nove predefinisane kategorije za zadatke. |
+| **Cilj:** Administrator želi dodati nove vnaprej določene kategorije za naloge. |
 | **Akteri:** Admin, Sistem |
-| **Preduslovi:** Admin je prijavljen. |
-| **Stanje sistema nakon PU:** U bazu je dodana nova kategorija, dostupna svim korisnicima. |
-| **Scenario:** |
-| 1. Admin izabere opciju **"Upravljanje kategorijami"** (uključeno u Admin kontrolni panel). |
-| 2. Sistem prikazuje formu za unos nove kategorije. |
-| 3. Admin unosi naziv nove kategorije (npr. "Osebni razvoj"). |
-| 4. Admin potvrđuje unos. |
-| 5. Sistem validira i čuva novu kategoriju. |
-| **Alternativni tokovi:** Naziv kategorije već postoji → Sistem javlja grešku i traži novi naziv. |
-| **Izuzeci:** Neuspešno čuvanje u bazu → Prikazuje se poruka o grešci. |
+| **Predpogoji:** Admin je prijavljen. |
+| **Stanje sistema po PU:** V bazo je dodana nova kategorija, dostopna vsem uporabnikom. |
+| **Scenarij:** |
+| 1. Admin izbere opcijo **"Upravljanje kategorij"** (vključeno v Admin nadzorni plošči). |
+| 2. Sistem prikaže obrazec za vnos nove kategorije. |
+| 3. Admin vnese ime nove kategorije (npr. "Osebni razvoj"). |
+| 4. Admin potrdi vnos. |
+| 5. Sistem validira in shrani novo kategorijo. |
+| **Alternativni tokovi:** Ime kategorije že obstaja → Sistem javi napako in zahteva novo ime. |
+| **Izuzeci:** Neuspešno shranjevanje v bazo → Prikazano je sporočilo o napaki. |
 
 ---
 
