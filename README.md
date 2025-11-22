@@ -64,13 +64,13 @@ Naš cilj je ustvariti aplikacijo, kjer uporabnik:
 
 ## Primerjava z obstoječimi rešitvami
 
-| Naša aplikacija             | Papirnati listi | Preproste ToDo app |
-| --------------------------- | --------------- | ------------------ |
-| Iskanje po ključnih besedah | Ne              | Omejeno            |
-| Filtriranje po statusu      | Ne              | Da                 |
-| Varno shranjevanje          | Ne              | Da                 |
-| Urejanje nalog              | Ne              | Da                 |
-| Skalabilna arhitektura      | Ne              | Ne                 |
+| Naša aplikacija | Papirnati listi | Preproste ToDo app |
+| :--- | :--- | :--- |
+| Iskanje po ključnih besedah | Ne | Omejeno |
+| Filtriranje po statusu | Ne | Da |
+| Varno shranjevanje | Ne | Da |
+| Urejanje nalog | Ne | Da |
+| Skalabilna arhitektura | Ne | Ne |
 
 ## Prihodnost projekta
 
@@ -113,57 +113,228 @@ Medtem ko uporabniku omogočamo, da ostane organiziran in produktiven, se mi kot
 
 To je projekt, ki **resnično pomaga ljudem** in hkrati **gradi naše znanje** za prihodnjo kariero v IT industriji.
 
+---
+
 ## 📝 Besednjak (Slovar Ključnih Izrazov)
 
-V tej tabeli so razloženi ključni izrazi, ki se uporabljajo v arhitekturi in kodi projekta ter so neposredno povezani z reševanjem problema organizacije nalog, kot je določeno v Viziji.
+V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti aplikacije, s čimer se zagotavlja, da bo vsak uporabnik hitro razumel pomen in uporabo.
 
-| Izraz (Termin)                     | Povezava z Vizijo Projekta                                 | Razlaga v Kontekstu Aplikacije                                                                                                                           |
-| :--------------------------------- | :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Full-Stack**                     | **Tehnološka Prednost** (Popolna rešitev)                  | Aplikacija, ki obsega tako uporabniški vmesnik (React Frontend) kot strežniško logiko in podatkovno bazo (Spring Boot Backend).                          |
-| **Kontejnerizacija**               | **Tehnološka Prednost** (Enostavna postavitev)             | Postopek pakiranja aplikacije in njene baze podatkov (MySQL) v izolirane in prenosljive Docker kontejnerje.                                              |
-| **Entitet _Todo_**                 | **Namen Aplikacije** (Osnovna enota dela)                  | Objekt, ki predstavlja eno samo opravilo. Vsebuje polja **`name`**, **`completed`** in **`dueDate`**.                                                    |
-| **DueDate (Rok)**                  | **Prihodnji Cilj** (Upravljanje z roki)                    | Polje tipa `LocalDate` v entitetu `Todo`, ki omogoča uporabniku, da **nastavi roke** za naloge, kar je ključno za zmanjšanje stresa.                     |
-| **Query Parameter**                | **Problem, ki ga Rešujemo** (Napredno iskanje/filtriranje) | Del URL-ja (`/api/todos?search=posel`), ki se uporablja za pošiljanje pogojev za **filtriranje** in **iskanje** podatkov na backend.                     |
-| **Soritveni Sloj (Service Layer)** | **Tehnološka Prednost** (Profesionalni pristop)            | Sloj v Spring Bootu, kjer se izvaja kompleksna **poslovna logika** – vključno z logiko za napredno iskanje in filtriranje, ki je izpostavljena v Viziji. |
-| **RESTful API**                    | **Tehnološka Prednost** (Prihodnje razširitve)             | Sklop pravil za komunikacijo med frontendom in backendom, ki omogoča enostaven razvoj **Mobilne aplikacije** in drugih integracij v prihodnosti.         |
-| **Toggle**                         | **Kaj Želimo Doseči** (Enostavno označevanje)              | Operacija, ki preklopi logično stanje naloge (`completed`) z enega klika, kar omogoča hiter in pregleden pregled dela.                                   |
-| **CRUD**                           | **Kaj Želimo Doseči** (Osnovno upravljanje)                | Standardne operacije (Ustvari, Beri, Posodobi, Izbriši), ki uporabniku omogočajo, da naloge **ureja ali izbriše brez težav**.                            |
-| **Repozitorij (Repository)**       | **Učna Vrednost** (Delo z bazama)                          | Vmesnik, ki skrbi za varno in direktno komunikaciju z **MySQL podatkovno bazo** (podatki so varno shranjeni).                                            |
-| **Frontend**                       | **Problem, ki ga Rešujemo** (Pregleden vmesnik)            | React aplikacija, ki služi kot **pregleden in hiter vmesnik** za uporabnika.                                                                             |
-| **Backend**                        | **Tehnološka Prednost** (Arhitektura mikrostoritev)        | Spring Boot aplikacija, ki skrbi za API logiku i podatkovni dostop, in predstavlja srce **mikrostoritvene arhitekture**.                                 |
-|                                    |
-
-| **Primer uporabe:** Pregled napredka uporabnika                                                                        | **ID:** PU-PN1 |
-| ---------------------------------------------------------------------------------------------------------------------- | -------------- |
-| **Cilj:** Uporabnik želi pridobiti pregled nad svojim napredkom – koliko nalog je opravljenih in koliko jih še ostaja. |
-| **Akterji:** Registrirani uporabnik, sistem                                                                            |
-| **Predpogoji:** Uporabnik mora biti prijavljen in mora imeti vsaj eno ustvarjeno nalogo.                               |
-| **Stanje sistema po PU:** Sistem ostane nespremenjen; prikaže se le izračun statistike.                                |
-| **Scenarij:**                                                                                                          |
-| 1. Uporabnik v meniju izbere »Pregled napredka«.                                                                       |
-| 2. Sistem izračuna število opravljenih in neopravljenih nalog.                                                         |
-| 3. Sistem prikaže statistiko in grafični prikaz napredka.                                                              |
-| 4. Uporabnik lahko klikne na neopravljen nalog.                                                                        |
-| 5. Sistem ponudi možnost »Označi kot opravljeno« (extend PU-PN2).                                                      |
-| **Alternativni tokovi:** Če uporabnik nima nalog, sistem prikaže obvestilo: »Ni nalog za prikaz napredka.«             |
-| **Izjeme:** Napaka pri izračunu statistike – sistem prikaže sporočilo »Napaka pri pridobivanju podatkov.«              |
+| Izraz (Termin) | Povezava z Vizijo Projekta | Razlaga v Kontekstu Aplikacije |
+| :--- | :--- | :--- |
+| **Seznam Nalog (Lista)** | **Namen Aplikacije** (Organizacija) | Osrednji prikaz vseh ustvarjenih opravil, ki jih uporabnik upravlja. |
+| **Naloga (Todo)** | **Osnovna Funkcionalnost** (Enota dela) | Posamezen vnos v seznamu, ki vsebuje ime, status in morebiten rok. |
+| **Rok (Due Date)** | **Kratkoročni Cilj** (Upravljanje z roki) | Datum, ki določa, kdaj je treba nalogo opraviti, s čimer se zmanjša zamujanje obveznosti. |
+| **Status** | **Problem, ki ga Rešujemo** (Filtriranje) | Logična oznaka, ki določa, ali je naloga **Dokončana** (Completed) ali **Nedokončana** (Uncompleted/Active). |
+| **Filtriranje** | **Problem, ki ga Rešujemo** (Preglednost) | Funkcija, ki omogoča prikaz nalog samo glede na njihov Status (npr. prikaži samo nedokončane). |
+| **Iskanje** | **Problem, ki ga Rešujemo** (Hitro iskanje) | Funkcija, ki omogoča hitro lociranje nalog z uporabo **ključne besede** znotraj imena naloge. |
+| **Urejanje** | **Kaj Želimo Doseči** (Sprememba podatkov) | Možnost, da uporabnik vstopi v 'Edit Mode' in popravi ali posodobi Ime in Rok obstoječe naloge. |
+| **Preklop Statusa (Toggle)**| **Kaj Želimo Doseči** (Enostavno označevanje) | Hitra akcija (običajno s klikom na Checkbox), ki spremeni Status naloge iz aktivne v dokončano in obratno. |
+| **CRUD** | **Urejanje Nalog** (Popoln nadzor) | Akronim za vse temeljne operacije: ustvarjanje, branje, posodabljanje in brisanje nalog. |
 
 ---
 
-| **Primer uporabe:** Označi nalogo kot opravljeno                                                             | **ID:** PU-PN2 |
-| ------------------------------------------------------------------------------------------------------------ | -------------- |
-| **Cilj:** Uporabnik želi iz pogleda napredka označiti nalogo kot opravljeno.                                 |
-| **Akterji:** Registrirani uporabnik, sistem                                                                  |
-| **Predpogoji:** Naloga mora biti v statusu »neopravljeno«. Uporabnik mora biti v pogledu »Pregled napredka«. |
-| **Stanje sistema po PU:** Status naloge se spremeni v »opravljeno«, statistika napredka se posodobi.         |
-| **Scenarij:**                                                                                                |
-| 1. Uporabnik klikne na neopravljen nalog v pregledu napredka.                                                |
-| 2. Sistem prikaže možnost »Označi kot opravljeno«.                                                           |
-| 3. Uporabnik potrdi možnost.                                                                                 |
-| 4. Sistem posodobi status naloge.                                                                            |
-| 5. Sistem ponovno izračuna napredek in osveži prikaz.                                                        |
-| **Alternativni tokovi:** Uporabnik prekliče opravilo – sistem ne izvede sprememb.                            |
-| **Izjeme:** Sistem ne uspe posodobiti naloge in prikaže sporočilo »Posodobitev ni uspela.«                   |
+## 📑 Detaljni Primeri Upotrebe (Use Case Specification)
+
+Ove tabele opisuju funkcionalne zahteve za svaki element u dijagramu, podeljene po akterima.
+
+### Akter: Registrovani Korisnik
+
+| Primer uporabe: **DODAJANJE NALOG** | ID: **PU-01** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi da doda novu stavku u svoj spisak obaveza. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Korisnik je prijavljen u sistem. |
+| **Stanje sistema nakon PU:** Nova stavka obaveze je trajno sačuvana i vidljiva na spisku. |
+| **Scenario:** |
+| 1. Korisnik izabere opciju **"Dodaj novu nalogo"**. |
+| 2. Sistem prikazuje polje za unos teksta i opcionalno polje za rok. |
+| 3. Korisnik unese tekstualni opis zadatka. |
+| 4. Korisnik potvrdi unos. |
+| 5. Sistem validira podatke, čuva novu stavku i osvežava listu. |
+| **Alternativni tokovi:** Korisnik prekida unos (pre nego što se sačuva) → Zadatak se ne dodaje. |
+| **Izuzeci:** Nevalidan unos (npr. prazan naslov) → Sistem prikazuje poruku o grešci. |
+
+---
+
+| Primer uporabe: **UREJANJE NALOG** | ID: **PU-02** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi da promeni tekst ili rok postojeće stavke. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Stavka mora postojati u bazi. |
+| **Stanje sistema nakon PU:** Podaci o stavci su ažurirani u bazi. |
+| **Scenario:** |
+| 1. Korisnik pronađe stavku koju želi da uredi. |
+| 2. Korisnik pokreće opciju **"Uređivanje"** (npr. klikom na ikonu za olovku). |
+| 3. Sistem prikazuje formu za uređivanje sa trenutnim podacima. |
+| 4. Korisnik menja tekst zadatka i/ili rok. |
+| 5. Korisnik sačuva izmene. |
+| 6. Sistem validira, ažurira stavku u bazi i osvežava prikaz. |
+| **Alternativni tokovi:** Korisnik poništi promene → Zadatak ostaje nepromenjen. |
+| **Izuzeci:** Neuspešno ažuriranje baze → Sistem javlja "Greška pri čuvanju izmena." |
+
+---
+
+| Primer uporabe: **BRISANJE NALOG** | ID: **PU-03** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi trajno da ukloni zadatak sa svog spiska. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Stavka mora postojati. |
+| **Stanje sistema nakon PU:** Stavka je trajno uklonjena iz baze podataka. |
+| **Scenario:** |
+| 1. Korisnik izabere stavku za brisanje. |
+| 2. Korisnik pokreće opciju **"Brisanje"**. |
+| 3. Sistem traži potvrdu: "Da li ste sigurni da želite obrisati nalogo?". |
+| 4. Korisnik potvrdi brisanje. |
+| 5. Sistem uklanja stavku iz baze i osvežava listu. |
+| **Alternativni tokovi:** Korisnik otkaže brisanje → Stavka ostaje na spisku. |
+| **Izuzeci:** Greška u komunikaciji sa serverom/bazom → Sistem prikazuje poruku o neuspehu. |
+
+---
+
+| Primer uporabe: **OZNAČEVANJE NALOG KOT KONČANE** | ID: **PU-04** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi brzo da označi zadatak kao završen ili da poništi status završenog zadatka. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Stavka mora postojati. |
+| **Stanje sistema nakon PU:** Status stavke (`completed`) je preklopljen (True/False) i sačuvan u bazi. |
+| **Scenario:** |
+| 1. Korisnik klikne na element za prebacivanje statusa (npr. Checkbox) pored zadatka. |
+| 2. Sistem automatski ažurira status u bazi. |
+| 3. Sistem osvežava prikaz (npr. zadatak se prebriše ili premesti). |
+| **Alternativni tokovi:** Ažuriranje ne uspe zbog filterskih podešavanja → Zadatak nestaje iz trenutno filtriranog prikaza. |
+| **Izuzeci:** Neuspešno ažuriranje statusa na serveru → Sistem javlja "Greška pri ažuriranju statusa." |
+
+---
+
+| Primer uporabe: **NASTAVLJANJE ROKOV** | ID: **PU-05** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi da postavi obavezni datum roka za zadatak. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Stavka mora biti dodata ili se dodaje. |
+| **Stanje sistema nakon PU:** Stavci je dodan validan datum roka (`dueDate`). |
+| **Scenario:** |
+| 1. Korisnik pokreće **Dodavanje** (PU-01) ili **Uređivanje** (PU-02) zadatka. |
+| 2. Korisnik koristi birač datuma (Date Picker) da odabere rok. |
+| 3. Korisnik čuva zadatak. |
+| 4. **EXTEND:** Ukoliko je rok blizu (npr. unutar 24h), sistem automatski nudi opciju **Nastavi opomnik** (PU-11). |
+| **Alternativni tokovi:** Korisnik izbriše postojeći rok → sistem shrani nalogo brez roka. |
+| **Izuzeci:** Datum roka je u preteklosti → sistem opozori uporabnika, a shrani. |
+
+---
+
+| Primer uporabe: **ISKANJE NALOG** | ID: **PU-06** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi brzo da pronađe zadatke koji sadrže određenu ključnu reč. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Postoji spisak zadataka. |
+| **Stanje sistema nakon PU:** Spisak je dinamički filtriran da prikaže samo podudarne zadatke. |
+| **Scenario:** |
+| 1. Korisnik unosi ključnu reč u polje za pretragu. |
+| 2. Sistem šalje zahtev serveru sa ključnom reči. |
+| 3. Server vraća samo zadatke čiji tekst sadrži ključnu reč. |
+| 4. Sistem prikazuje skraćeni, filtrirani spisak. |
+| **Alternativni tokovi:** Nema rezultata za ključnu reč → Sistem prikazuje: "Ni najdenih nalog." |
+| **Izuzeci:** Greška u komunikaciji → Sistem prikazuje spisak bez filtera uz upozorenje. |
+
+---
+
+| Primer uporabe: **FILTRIRANJE PO STATUSU** | ID: **PU-07** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi da prikaže samo određeni subset zadataka (npr. samo završene ili samo nezavršene). |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Postoji spisak zadataka. |
+| **Stanje sistema nakon PU:** Spisak je filtriran da prikaže samo zadatke sa izabranim statusom. |
+| **Scenario:** |
+| 1. Korisnik izabere opciju filtriranja (npr. "Nedokončane" ali "Dokončane"). |
+| 2. Sistem šalje zahtev serveru sa parametrom statusa. |
+| 3. Server vraća samo zadatke koji odgovaraju statusu. |
+| 4. Sistem prikazuje filtrirani spisak. |
+| **Alternativni tokovi:** Korisnik izabere "Sve" → Sistem prikazuje celokupan spisak. |
+| **Izuzeci:** Greška u komunikaciji → Sistem prikazuje spisak bez filtera uz upozorenje. |
+
+---
+
+| Primer uporabe: **PREGLED NAPREDKA** | ID: **PU-08** |
+| :--- | :--- |
+| **Cilj:** Korisnik želi da stekne vizuelni uvid u svoj napredak (koliko je završeno/nezavršeno). |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Korisnik mora imati barem jednu stavku. |
+| **Stanje sistema nakon PU:** Prikazana je statistika; podaci ostaju nepromenjeni. |
+| **Scenario:** |
+| 1. Korisnik izabere opciju **"Pregled napredka"** (biće implementirano u budućnosti). |
+| 2. Sistem izračunava procenat završenih zadataka. |
+| 3. Sistem prikazuje grafički prikaz (npr. krug dijagram) i sumarnu statistiku. |
+| **Alternativni tokovi:** Nema zadataka → Sistem prikazuje poruku: "Nema nalog za prikaz napredka." |
+| **Izuzeci:** Greška pri preuzimanju statistike → Sistem prikazuje poruku o grešci. |
+
+---
+
+| Primer uporabe: **NASTAVI OPOMNIK** | ID: **PU-11** |
+| :--- | :--- |
+| **Tip:** Proširenje (Extend) **NASTAVLJANJE ROKOV** (PU-05) |
+| **Cilj:** Korisnik želi da postavi automatski opomnik na svoj rok. |
+| **Akteri:** Registrovani Korisnik, Sistem |
+| **Preduslovi:** Korisnik je upravo postavio rok (PU-05). |
+| **Stanje sistema nakon PU:** Kreiran je opomnik u sistemu koji se aktivira pre roka. |
+| **Scenario:** |
+| 1. Sistem detektuje da je rok blizu ili da je nova stavka sa rokom sačuvana (pokreće se iz PU-05). |
+| 2. Sistem automatski nudi opciju za **"Nastavi opomnik"**. |
+| 3. Korisnik potvrdi opomnik. |
+| 4. Sistem kreira sistemski opomnik za zadatu stavku. |
+| **Alternativni tokovi:** Korisnik odbije opomnik → Opomnik se ne postavlja. |
+| **Izuzeci:** Greška pri kreiranju opomnika → Sistem javlja da opomnik nije postavljen. |
+
+---
+---
+
+### Akter: Admin
+
+| Primer uporabe: **UPRAVLJANJE UPORABNIKOV** | ID: **PU-A1** |
+| :--- | :--- |
+| **Cilj:** Administrator želi da nadgleda i menja privilegije registrovanih korisnika. |
+| **Akteri:** Admin, Sistem |
+| **Preduslovi:** Admin je uspešno prijavljen u sistem. |
+| **Stanje sistema nakon PU:** Podaci o korisnicima su modifikovani (npr. promena uloge, brisanje). |
+| **Scenario:** |
+| 1. Admin izabere opciju **"Upravljanje uporabnikov"**. |
+| 2. Sistem prikazuje listu svih korisnika, njihove uloge i statuse. |
+| 3. Admin izabere korisnika za editovanje/brisanje. |
+| 4. Admin izvrši željenu promenu (npr. menja ulogu u "Admin" ili briše nalog). |
+| 5. Sistem validira, primenjuje promene i osvežava listu. |
+| **Alternativni tokovi:** Admin otkaže operaciju → Promene nisu sačuvane. |
+| **Izuzeci:** Admin pokušava da obriše svoj nalog → Sistem odbija akciju: "Brisanje sopstvenog naloga ni dovoljeno." |
+
+---
+
+| Primer uporabe: **PREGLED STATISTIKE SISTEMA** | ID: **PU-A2** |
+| :--- | :--- |
+| **Cilj:** Administrator želi da vidi agregirane podatke o korišćenju aplikacije. |
+| **Akteri:** Admin, Sistem |
+| **Preduslovi:** Admin je prijavljen. |
+| **Stanje sistema nakon PU:** Prikazani su statistički podaci; podaci u bazi ostaju nepromenjeni. |
+| **Scenario:** |
+| 1. Admin izabere opciju **"Pregled statistike sistema"**. |
+| 2. Sistem prikuplja sumarne podatke (ukupan broj nalog, broj korisnika, procenat završenih zadataka, itd.). |
+| 3. Sistem prikazuje izveštaj i/ili dijagrame statistike. |
+| **Alternativni tokovi:** Prikaz statistike ne uspe → sistem prikaže obvestilo: "Podatkov ni bilo mogoče naložiti." |
+| **Izuzeci:** Greška pri izračunavanju statistike (npr. neuspešna SQL poizvedba) → Prikazuje se poruka o grešci. |
+
+---
+
+| Primer uporabe: **DODAJANJE NOVIH KATEGORIJ** | ID: **PU-A3** |
+| :--- | :--- |
+| **Cilj:** Administrator želi da doda nove predefinisane kategorije za zadatke. |
+| **Akteri:** Admin, Sistem |
+| **Preduslovi:** Admin je prijavljen. |
+| **Stanje sistema nakon PU:** U bazu je dodana nova kategorija, dostupna svim korisnicima. |
+| **Scenario:** |
+| 1. Admin izabere opciju **"Upravljanje kategorijami"** (uključeno u Admin kontrolni panel). |
+| 2. Sistem prikazuje formu za unos nove kategorije. |
+| 3. Admin unosi naziv nove kategorije (npr. "Osebni razvoj"). |
+| 4. Admin potvrđuje unos. |
+| 5. Sistem validira i čuva novu kategoriju. |
+| **Alternativni tokovi:** Naziv kategorije već postoji → Sistem javlja grešku i traži novi naziv. |
+| **Izuzeci:** Neuspešno čuvanje u bazu → Prikazuje se poruka o grešci. |
 
 ---
 
@@ -179,11 +350,11 @@ Ta del je namenjen članom ekipe in bodočim razvijalcem.
 
 Glavni projekt je razdeljen na dve pod-direktorija (Mikrostoritve):
 
-| Direktorij/Datoteka  | Vsebina in Namen                                                                            |
-| :------------------- | :------------------------------------------------------------------------------------------ |
-| **`todo-backend/`**  | Vsebuje vso **Java/Spring Boot** izvorno kodo, Dockerfile in `docker-compose.yml`.          |
-| **`todo-frontend/`** | Vsebuje vso **React/JavaScript** izvorno kodo (Vite).                                       |
-| `README.md`          | Glavna dokumentacija in navodila.                                                           |
+| Direktorij/Datoteka | Vsebina in Namen |
+| :--- | :--- |
+| **`todo-backend/`** | Vsebuje vso **Java/Spring Boot** izvorno kodo, Dockerfile in `docker-compose.yml`. |
+| **`todo-frontend/`** | Vsebuje vso **React/JavaScript** izvorno kodo (Vite). |
+| `README.md` | Glavna dokumentacija in navodila. |
 | `docker-compose.yml` | **Glavna konfiguracijska datoteka za Docker**, določa storitve (backend, MySQL) in omrežje. |
 
 ### 1.3. Orodja, Okvirji in Različice (Informacije o Uporabljenih Orodjih, Frameworkih in Različicah)
@@ -221,29 +392,29 @@ Pred zagonom aplikacije se prepričajte, da imate nameščeno naslednje:
 
 1. **Kloniranje Repozitorija:**
 
-   ```bash
-   git clone [https://github.com/PetarKojadinovic/RIS_projekt.git]
-   cd RIS_PROJEKT
-   ```
+    ```bash
+    git clone [[https://github.com/PetarKojadinovic/RIS_projekt.git](https://github.com/PetarKojadinovic/RIS_projekt.git)]
+    cd RIS_PROJEKT
+    ```
 
 2. **Zagon Zalednega Sklada (MySQL in Spring Boot):**
-   Ta korak prevede Java kodo, ustvari Docker slike in zažene storitvi MySQL in Spring Boot na vratih **3307** in **8080**.
+    Ta korak prevede Java kodo, ustvari Docker slike in zažene storitvi MySQL in Spring Boot na vratih **3307** in **8080**.
 
-   ```bash
-   cd todo-backend
-   docker compose up --build
-   ```
+    ```bash
+    cd todo-backend
+    docker compose up --build
+    ```
 
-   _(Pustite ta terminal odprt)_
+    *(Pustite ta terminal odprt)*
 
 3. **Zagon Sprednjega Dela (React):**
-   Odprite nov terminal in zaženite sprednji del.
-   ```bash
-   cd ../todo-frontend
-   npm install
-   npm run dev
-   ```
-   Aplikacija bi se zdaj morala samodejno odpreti v brskalniku na naslovu **`http://localhost:5173`**.
+    Odprite nov terminal in zaženite sprednji del.
+    ```bash
+    cd ../todo-frontend
+    npm install
+    npm run dev
+    ```
+    Aplikacija bi se zdaj morala samodejno odpreti v brskalniku na naslovu **`http://localhost:5173`**.
 
 ---
 
@@ -257,8 +428,8 @@ Aplikacija podpira naslednje funkcionalnosti:
 - **Brisanje:** Odstranjevanje naloge iz baze.
 - **Sprememba Statusa:** Označevanje naloge kot dokončane/nedokončane.
 - **NAPREDNO FILTRIRANJE:**
-  - Iskanje po ključni besedi (v imenu naloge).
-  - Filtriranje po statusu (Vse, Dokončane, Nedokončane).
+    - Iskanje po ključni besedi (v imenu naloge).
+    - Filtriranje po statusu (Vse, Dokončane, Nedokončane).
 
 ---
 
@@ -268,24 +439,24 @@ Naslednji koraki se nanašajo na Git potek dela znotraj vaše ekipe.
 
 1. **Prenos Najnovejših Spremem:**
 
-   ```bash
-   git pull origin main
-   ```
+    ```bash
+    git pull origin main
+    ```
 
 2. **Ustvarjanje Nove Veje (Branch):**
 
-   ```bash
-   git checkout -b feature/ime-funkcionalnosti
-   ```
+    ```bash
+    git checkout -b feature/ime-funkcionalnosti
+    ```
 
 3. **Commits in Potisk (Push):**
 
-   ```bash
-   git add .
-   git commit -m "feat: Dodana validacija uporabniškega vnosa"
-   git push origin feature/ime-funkcionalnosti
-   ```
+    ```bash
+    git add .
+    git commit -m "feat: Dodana validacija uporabniškega vnosa"
+    git push origin feature/ime-funkcionalnosti
+    ```
 
 4. **Ustvarjanje Pull Requesta (PR):**
-   - Na GitHubu ustvarite **Pull Request** (Zahtevek za združitev) iz vaše veje (`feature/...`) v glavno vejo (`main`).
-   - Počakajte, da **vsaj en član ekipe/asistent pregleda (review)** vašo kodo in odobri združitev.
+    - Na GitHubu ustvarite **Pull Request** (Zahtevek za združitev) iz vaše veje (`feature/...`) v glavno vejo (`main`).
+    - Počakajte, da **vsaj en član ekipe/asistent pregleda (review)** vašo kodo in odobri združitev.
