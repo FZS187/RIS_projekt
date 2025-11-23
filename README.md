@@ -133,7 +133,7 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 
 ---
 
-### Podrobni opisi primerov uporabe
+## Podrobni opisi primerov uporabe
 📄 [Primeri uporabe - podrobni opisi](./docs/Primeri_uporabe[1].docx)
 
 ---
