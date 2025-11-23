@@ -134,7 +134,7 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 ---
 
 ### Diagram primerov uporabe
-<img width="100%" alt="DPU_drugaVerzija" src="https://github.com/user-attachments/assets/9d859375-96c2-4c6c-910a-90135af59d9d" />
+<img width="100%" alt="DPU Diagram" src="https://github.com/user-attachments/assets/9d859375-96c2-4c6c-910a-90135af59d9d" />
 
 ---
 
