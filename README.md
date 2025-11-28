@@ -144,7 +144,7 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 
 ---
 
-## DPU Diagram
+## Razredni diagram
 
 <img width="1148" height="1845" alt="class diagram" src="https://github.com/user-attachments/assets/6d6e585a-c548-4644-9950-de8cce6ca6d1" />
 
