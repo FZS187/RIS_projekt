@@ -146,7 +146,7 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 
 ## DPU Diagram
 
-<img width="888" height="2238" alt="class diagram" src="https://github.com/user-attachments/assets/247833ae-41d4-4c6d-a859-1a5aee690490" />
+<img width="1148" height="1845" alt="class diagram" src="https://github.com/user-attachments/assets/6d6e585a-c548-4644-9950-de8cce6ca6d1" />
 
 ---
 
