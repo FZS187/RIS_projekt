@@ -142,6 +142,14 @@ V tej tabeli so razloženi ključni izrazi, ki so specifični za funkcionalnosti
 
 <img width="2230" height="1411" alt="DPU_drugaVerzija drawio" src="https://github.com/user-attachments/assets/6edb39f6-3650-42a5-9458-ff3aafe805b6" />
 
+---
+
+## DPU Diagram
+
+<img width="888" height="2238" alt="class diagram" src="https://github.com/user-attachments/assets/247833ae-41d4-4c6d-a859-1a5aee690490" />
+
+---
+
 ## Dokumentacija za Razvijalce (Dokumentacija za Razvijalce)
 
 Ta del je namenjen članom ekipe in bodočim razvijalcem.
