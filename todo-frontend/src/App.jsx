@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 
-// Auth komponente
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
-
-// Todo komponente
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
 import FilterForm from "./components/FilterForm";
@@ -13,53 +10,62 @@ import FilterForm from "./components/FilterForm";
 const API_URL = "http://localhost:8080/api/todos";
 
 function App() {
-  // ============== AUTH STATE ==============
   const [currentPage, setCurrentPage] = useState("login"); // 'login', 'register', 'app'
   const [user, setUser] = useState(null);
-
-  // ============== TODO STATE ==============
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState({ search: "", status: "all" });
+  const reminderTimers = useRef([]);
 
-  // ============== AUTH HANDLERS ==============
   const handleLogin = (userData) => {
     setUser(userData);
     setCurrentPage("app");
-    // TODO: Sačuvati token u localStorage ako backend vraća JWT
-    // localStorage.setItem('token', userData.token);
+    localStorage.setItem("loggedIn", "true");
   };
 
   const handleRegister = (userData) => {
     setUser(userData);
     setCurrentPage("app");
-    // TODO: Sačuvati token u localStorage ako backend vraća JWT
-    // localStorage.setItem('token', userData.token);
+    localStorage.setItem("loggedIn", "true");
   };
 
   const handleLogout = () => {
     setUser(null);
     setCurrentPage("login");
     setTodos([]);
-    // TODO: Obrisati token iz localStorage
-    // localStorage.removeItem('token');
+    localStorage.removeItem("loggedIn");
   };
 
-  // ============== TODO FUNKCIJE ==============
-
-  // Dohvatanje zadataka sa filtriranjem
   const fetchTodos = useCallback(() => {
     const queryString = new URLSearchParams({
       search: filter.search,
       status: filter.status,
     }).toString();
 
-    fetch(`${API_URL}?${queryString}`)
-      .then((response) => response.json())
-      .then((data) => setTodos(data))
-      .catch((error) =>
-        console.error("Greška pri dohvatanju zadataka:", error)
-      );
+    fetch(`${API_URL}?${queryString}`, { credentials: "include" })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("📋 Fetched todos:", data); // Debug log
+        setTodos(data);
+      })
+      .catch((error) => {
+        console.error("Greška pri dohvatanju zadataka:", error);
+        if (error.message.includes("401") || error.message.includes("403")) {
+          setCurrentPage("login");
+          localStorage.removeItem("loggedIn");
+        }
+      });
   }, [filter]);
+
+  useEffect(() => {
+    const isLogged = localStorage.getItem("loggedIn") === "true";
+    if (isLogged) {
+      setCurrentPage("app");
+      fetchTodos();
+    }
+  }, [fetchTodos]);
 
   useEffect(() => {
     if (currentPage === "app") {
@@ -67,40 +73,37 @@ function App() {
     }
   }, [fetchTodos, currentPage]);
 
-  // Promena filtera
   const handleFilterChange = (search, status) => {
     setFilter({ search, status });
   };
 
-  // Ponovno učitavanje liste
-  const refreshTodos = () => {
-    fetchTodos();
-  };
-
-  // Dodavanje novog zadatka (POST)
-  const addTodo = (name, dueDate) => {
+  const addTodo = (name, dueDate, reminderAt) => {
     if (!name.trim()) return;
 
     const newTodo = {
       name: name,
       completed: false,
       dueDate: dueDate || null,
+      reminderAt: reminderAt || null,
     };
+
+    console.log("➕ Adding todo:", newTodo); // Debug log
 
     fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(newTodo),
     })
       .then((response) => response.json())
-      .then((savedTodo) => {
-        refreshTodos();
+      .then((createdTodo) => {
+        console.log("✅ Todo created:", createdTodo); // Debug log
+        fetchTodos();
       })
       .catch((error) => console.error("Greška pri dodavanju:", error));
   };
 
-  // Uređivanje zadatka (PUT)
-  const editTodo = (id, newName, newDueDate) => {
+  const editTodo = (id, newName, newDueDate, newReminderAt) => {
     const todoToUpdate = todos.find((t) => t.id === id);
     if (!todoToUpdate) return;
 
@@ -108,16 +111,18 @@ function App() {
       ...todoToUpdate,
       name: newName,
       dueDate: newDueDate,
+      reminderAt: newReminderAt,
     };
 
     fetch(`${API_URL}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updatedTodo),
     })
       .then((response) => {
         if (response.ok) {
-          refreshTodos();
+          fetchTodos();
         } else {
           console.error("Neuspešno uređivanje na serveru");
         }
@@ -125,7 +130,6 @@ function App() {
       .catch((error) => console.error("Greška pri uređivanju:", error));
   };
 
-  // Toggle completed status (PUT)
   const toggleTodo = (id) => {
     const todoToUpdate = todos.find((t) => t.id === id);
     if (!todoToUpdate) return;
@@ -138,32 +142,67 @@ function App() {
     fetch(`${API_URL}/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(updatedTodo),
     })
       .then((response) => {
         if (response.ok) {
-          refreshTodos();
+          fetchTodos();
         }
       })
       .catch((error) => console.error("Greška pri promeni statusa:", error));
   };
 
-  // Brisanje zadatka (DELETE)
   const deleteTodo = (id) => {
     fetch(`${API_URL}/${id}`, {
       method: "DELETE",
+      credentials: "include",
     })
       .then((response) => {
         if (response.ok) {
-          refreshTodos();
+          fetchTodos();
         }
       })
       .catch((error) => console.error("Greška pri brisanju:", error));
   };
 
-  // ============== RENDER ==============
+  // Lokalne notifikacije (in-app alert) za reminderAt
+  useEffect(() => {
+    // očisti stare timere
+    reminderTimers.current.forEach((t) => clearTimeout(t));
+    reminderTimers.current = [];
 
-  // Prikaži Login stranicu
+    todos.forEach((todo) => {
+      if (todo.reminderAt && todo.reminderAt.trim() !== "") {
+        const target = new Date(todo.reminderAt).getTime();
+        const now = Date.now();
+        const delay = target - now;
+
+        console.log(
+          `⏰ Reminder for "${todo.name}": ${delay}ms (${
+            delay > 0 ? "future" : "past"
+          })`
+        );
+
+        if (delay > 0) {
+          const timerId = setTimeout(() => {
+            alert(
+              `Opomnik: "${todo.name}" zakazan za ${new Date(
+                todo.reminderAt
+              ).toLocaleString("sr-RS")}`
+            );
+          }, delay);
+          reminderTimers.current.push(timerId);
+        }
+      }
+    });
+
+    return () => {
+      reminderTimers.current.forEach((t) => clearTimeout(t));
+      reminderTimers.current = [];
+    };
+  }, [todos]);
+
   if (currentPage === "login") {
     return (
       <LoginPage
@@ -173,7 +212,6 @@ function App() {
     );
   }
 
-  // Prikaži Registration stranicu
   if (currentPage === "register") {
     return (
       <RegisterPage
@@ -183,7 +221,6 @@ function App() {
     );
   }
 
-  // Prikaži Todo App
   return (
     <div
       style={{
@@ -202,7 +239,6 @@ function App() {
           boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
         }}
       >
-        {/* Header sa imenom korisnika i Logout dugmetom */}
         <div
           style={{
             display: "flex",
@@ -266,13 +302,8 @@ function App() {
           </button>
         </div>
 
-        {/* Todo Form - za dodavanje novih zadataka */}
         <TodoForm onAdd={addTodo} />
-
-        {/* Filter Form - za pretragu i filtriranje */}
         <FilterForm onFilterChange={handleFilterChange} />
-
-        {/* Todo List - lista svih zadataka */}
         <TodoList
           todos={todos}
           onToggle={toggleTodo}
