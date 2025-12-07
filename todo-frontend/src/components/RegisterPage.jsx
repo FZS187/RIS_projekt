@@ -47,7 +47,6 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          s,
         }),
       });
 
