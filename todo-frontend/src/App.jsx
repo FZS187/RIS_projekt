@@ -3,6 +3,7 @@ import "./App.css";
 
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
+import AdminDashboard from "./components/AdminDashboard";
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
 import FilterForm from "./components/FilterForm";
@@ -10,22 +11,27 @@ import FilterForm from "./components/FilterForm";
 const API_URL = "http://localhost:8080/api/todos";
 
 function App() {
-  const [currentPage, setCurrentPage] = useState("login"); // 'login', 'register', 'app'
+  const [currentPage, setCurrentPage] = useState("login"); // 'login', 'register', 'app', 'admin'
   const [user, setUser] = useState(null);
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState({ search: "", status: "all" });
   const reminderTimers = useRef([]);
 
   const handleLogin = (userData) => {
-    setUser(userData);
-    setCurrentPage("app");
+    // Proveri da li je admin (npr. email === admin@admin.com)
+    const isAdmin = userData.email === "admin@admin.com" || userData.name === "admin";
+    
+    setUser({ ...userData, isAdmin });
+    setCurrentPage(isAdmin ? "admin" : "app");
     localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("userData", JSON.stringify({ ...userData, isAdmin }));
   };
 
   const handleRegister = (userData) => {
-    setUser(userData);
+    setUser({ ...userData, isAdmin: false });
     setCurrentPage("app");
     localStorage.setItem("loggedIn", "true");
+    localStorage.setItem("userData", JSON.stringify({ ...userData, isAdmin: false }));
   };
 
   const handleLogout = () => {
@@ -33,6 +39,7 @@ function App() {
     setCurrentPage("login");
     setTodos([]);
     localStorage.removeItem("loggedIn");
+    localStorage.removeItem("userData");
   };
 
   const fetchTodos = useCallback(() => {
@@ -47,7 +54,7 @@ function App() {
           throw new Error(`HTTP ${response.status}`);
         }
         const data = await response.json();
-        console.log("📋 Fetched todos:", data); // Debug log
+        console.log("📋 Fetched todos:", data);
         setTodos(data);
       })
       .catch((error) => {
@@ -55,17 +62,24 @@ function App() {
         if (error.message.includes("401") || error.message.includes("403")) {
           setCurrentPage("login");
           localStorage.removeItem("loggedIn");
+          localStorage.removeItem("userData");
         }
       });
   }, [filter]);
 
   useEffect(() => {
     const isLogged = localStorage.getItem("loggedIn") === "true";
-    if (isLogged) {
-      setCurrentPage("app");
-      fetchTodos();
+    const storedUserData = localStorage.getItem("userData");
+    
+    if (isLogged && storedUserData) {
+      const userData = JSON.parse(storedUserData);
+      setUser(userData);
+      setCurrentPage(userData.isAdmin ? "admin" : "app");
+      if (!userData.isAdmin) {
+        fetchTodos();
+      }
     }
-  }, [fetchTodos]);
+  }, []);
 
   useEffect(() => {
     if (currentPage === "app") {
@@ -87,7 +101,7 @@ function App() {
       reminderAt: reminderAt || null,
     };
 
-    console.log("➕ Adding todo:", newTodo); // Debug log
+    console.log("➕ Adding todo:", newTodo);
 
     fetch(API_URL, {
       method: "POST",
@@ -97,7 +111,7 @@ function App() {
     })
       .then((response) => response.json())
       .then((createdTodo) => {
-        console.log("✅ Todo created:", createdTodo); // Debug log
+        console.log("✅ Todo created:", createdTodo);
         fetchTodos();
       })
       .catch((error) => console.error("Greška pri dodavanju:", error));
@@ -168,7 +182,6 @@ function App() {
 
   // Lokalne notifikacije (in-app alert) za reminderAt
   useEffect(() => {
-    // očisti stare timere
     reminderTimers.current.forEach((t) => clearTimeout(t));
     reminderTimers.current = [];
 
@@ -203,6 +216,7 @@ function App() {
     };
   }, [todos]);
 
+  // Login strana
   if (currentPage === "login") {
     return (
       <LoginPage
@@ -212,6 +226,7 @@ function App() {
     );
   }
 
+  // Register strana
   if (currentPage === "register") {
     return (
       <RegisterPage
@@ -221,6 +236,17 @@ function App() {
     );
   }
 
+  // Admin Dashboard
+  if (currentPage === "admin") {
+    return (
+      <AdminDashboard
+        onLogout={handleLogout}
+        user={user}
+      />
+    );
+  }
+
+  // Obična korisnička strana
   return (
     <div
       style={{

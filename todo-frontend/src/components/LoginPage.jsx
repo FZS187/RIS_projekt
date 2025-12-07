@@ -7,6 +7,47 @@ const LoginPage = ({ onLogin, onSwitchToRegister }) => {
 
   const handleSubmit = async () => {
     setError("");
+  
+    if (!email || !password) {
+      setError("Molimo unesite email i lozinku");
+      return;
+    }
+  
+    // ADMIN pass and email
+    const isAdmin = email === "admin@admin.com" && password === "admin123";
+    
+    if (isAdmin) {
+      // Ako je ADMIN
+      onLogin({ email, name: "Admin", isAdmin: true });
+      return;
+    }
+  
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+  
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        const message = errorBody.message || "Greska pri prijavi";
+        setError(message);
+        return;
+      }
+  
+      const data = await response.json();
+      onLogin({ ...data, isAdmin: false }); // Obični korisnici nisu admini
+    } catch (err) {
+      setError("Greska pri prijavi");
+    }
+  };
+
+  // backup prosli code 
+  /**
+   * const handleSubmit = async () => {
+    setError("");
 
     if (!email || !password) {
       setError("Molimo unesite email i lozinku");
@@ -34,6 +75,7 @@ const LoginPage = ({ onLogin, onSwitchToRegister }) => {
       setError("Greska pri prijavi");
     }
   };
+   */
 
   return (
     <div
