@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-// Očekujemo da addTodo funkcija sada prima IME i DATUM
-const TodoForm = ({ addTodo }) => {
-  const [name, setName] = useState('');
-  const [dueDate, setDueDate] = useState('');
+// Očekujemo da onAdd prima ime, rok i reminder
+const TodoForm = ({ onAdd }) => {
+  const [name, setName] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [reminderAt, setReminderAt] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    // Pozivamo addTodo sa oba nova polja
-    addTodo(name, dueDate);
-    
-    // Resetujemo formulare
-    setName('');
-    setDueDate('');
+    onAdd(name, dueDate, reminderAt);
+    setName("");
+    setDueDate("");
+    setReminderAt("");
   };
 
   return (
@@ -26,15 +25,31 @@ const TodoForm = ({ addTodo }) => {
         onChange={(e) => setName(e.target.value)}
         className="todo-input"
       />
-      
-      <input
-        type="date"
-        placeholder="Rok"
-        value={dueDate}
-        onChange={(e) => setDueDate(e.target.value)}
-        className="todo-date-input"
-      />
-      
+
+      <div className="form-group">
+        <label style={{ color: "#000", fontWeight: 600, display: "block" }}>
+          Postavi rok
+        </label>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="todo-date-input"
+        />
+      </div>
+
+      <div className="form-group">
+        <label style={{ color: "#000", fontWeight: 600, display: "block" }}>
+          Opomnik (datum i vreme)
+        </label>
+        <input
+          type="datetime-local"
+          value={reminderAt}
+          onChange={(e) => setReminderAt(e.target.value)}
+          className="todo-date-input"
+        />
+      </div>
+
       <button type="submit" className="todo-button">
         Dodaj
       </button>
