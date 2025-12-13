@@ -19,6 +19,7 @@ public class User {
     @Column(nullable = false)
     private String role = "ROLE_USER";
 
+    // Konstruktori
     public User() {
     }
 
@@ -28,6 +29,7 @@ public class User {
         this.role = role;
     }
 
+    // Getteri i Setteri
     public Long getId() {
         return id;
     }
@@ -52,11 +54,30 @@ public class User {
         this.passwordHash = passwordHash;
     }
 
+    // DODAJ OVU METODU - Za kompatibilnost sa testovima
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    // DODAJ OVU METODU - Za kompatibilnost sa testovima
+    public void setPassword(String password) {
+        this.passwordHash = password;
+    }
+
     public String getRole() {
         return role;
     }
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                '}';
     }
 }
