@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit testi za UserService - ČLAN 2
+ * Unit testi za UserService
  *
- * Avtor: [IME ČLANA 2]
+ * Avtor: [Petar Kojadinovic]
  * Datum: 12.12.2025
  *
  * Testira: ISKANJE uporabnikov po emailu
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.*;
  * - Negativen test: Neobstoječ uporabnik
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserService Tests - Član 2: Iskanje")
+@DisplayName("UserService Tests - Petar Kojadinovic: Iskanje")
 class UserServiceSearchTest {
 
     @Mock
@@ -92,7 +92,7 @@ class UserServiceSearchTest {
         // Preveri, da je findByEmail() klican točno 1x
         verify(userRepository, times(1)).findByEmail(email);
 
-        System.out.println("✅ Petar Kojadinovic - POZITIVEN TEST: Uporabnik uspešno najden");
+        System.out.println(" Petar Kojadinovic - POZITIVEN TEST: Uporabnik uspešno najden");
     }
 
     /**
@@ -115,7 +115,7 @@ class UserServiceSearchTest {
      * - Repository metoda je klicana 1x
      */
     @Test
-    @DisplayName("NEGATIVEN: Iskanje neobstoječega uporabnika vrne prazen Optional")
+    @DisplayName("NEGATIVEN: Iskanje neobstojecega uporabnika vrne prazen Optional")
     void testFindByEmail_UserNotFound() {
         // ARRANGE - Priprava podatkov
         String nonExistentEmail = "nonexistent@example.com";
@@ -141,6 +141,6 @@ class UserServiceSearchTest {
         verify(userRepository, never()).save(any(User.class));
         verify(passwordEncoder, never()).encode(anyString());
 
-        System.out.println("✅ Petar Kojadinovic - NEGATIVEN TEST: Neobstoječ uporabnik pravilno obravnavan");
+        System.out.println("✅ Petar Kojadinovic - NEGATIVEN TEST: Neobstojec uporabnik pravilno obravnavan");
     }
 }

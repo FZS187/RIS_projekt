@@ -1,63 +1,208 @@
 package com.example.todobackend.service;
 
+import com.example.todobackend.dto.TodoStatisticsDTO;
+import com.example.todobackend.model.Category;
+import com.example.todobackend.model.Priority;
 import com.example.todobackend.model.Todo;
 import com.example.todobackend.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Storitev za upravljanje nalog
+ * Vsebuje poslovno logiko aplikacije
+ *
+ * TASK-2: Dodana metoda getStatistics() za analizo produktivnosti
+ */
 @Service
 public class TodoService {
 
-    private final TodoRepository todoRepository;
-
     @Autowired
-    public TodoService(TodoRepository todoRepository) {
-        this.todoRepository = todoRepository;
-    }
+    private TodoRepository todoRepository;
 
+    // ========== OBSTOJECE METODE (če že obstajajo) ==========
+
+    /**
+     * Dobi vse naloge
+     */
     public List<Todo> getAllTodos() {
         return todoRepository.findAll();
     }
 
+    /**
+     * Dobi nalogo po ID-ju
+     */
     public Optional<Todo> getTodoById(Long id) {
         return todoRepository.findById(id);
     }
 
-    public Todo saveTodo(Todo todo) {
+    /**
+     * Ustvari novo nalogo
+     */
+    public Todo createTodo(Todo todo) {
+        // Nastavi privzete vrednosti, če niso podane
+        if (todo.getCategory() == null) {
+            todo.setCategory(Category.OTHER);
+        }
+        if (todo.getPriority() == null) {
+            todo.setPriority(Priority.MEDIUM);
+        }
         return todoRepository.save(todo);
     }
 
+    /**
+     * Posodobi obstoječo nalogo
+     */
+    public Todo updateTodo(Long id, Todo todoDetails) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Naloga z ID " + id + " ni bila najdena"));
+
+        todo.setName(todoDetails.getName());
+        todo.setDescription(todoDetails.getDescription());
+        todo.setCompleted(todoDetails.isCompleted());
+        todo.setDueDate(todoDetails.getDueDate());
+        todo.setReminderAt(todoDetails.getReminderAt());
+        todo.setCategory(todoDetails.getCategory());
+        todo.setPriority(todoDetails.getPriority());
+
+        return todoRepository.save(todo);
+    }
+
+    /**
+     * Izbriši nalogo
+     */
     public void deleteTodo(Long id) {
         todoRepository.deleteById(id);
     }
 
-    public Optional<Todo> updateTodo(Long id, Todo todoDetails) {
-        return todoRepository.findById(id).map(todo -> {
-            todo.setName(todoDetails.getName());
-            todo.setCompleted(todoDetails.isCompleted());
-            todo.setDueDate(todoDetails.getDueDate());
-            todo.setReminderAt(todoDetails.getReminderAt());
-            return todoRepository.save(todo);
-        });
+    /**
+     * Preklopi status dokončanosti
+     */
+    public Todo toggleComplete(Long id) {
+        Todo todo = todoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Naloga z ID " + id + " ni bila najdena"));
+
+        todo.setCompleted(!todo.isCompleted());
+        return todoRepository.save(todo);
     }
 
-    public List<Todo> getFilteredTodos(String search, String status) {
-        if (status != null && !status.equalsIgnoreCase("all")) {
-            boolean isCompleted = status.equalsIgnoreCase("completed");
-            if (search != null && !search.isEmpty()) {
-                return todoRepository.findByNameContainingIgnoreCaseAndCompleted(search, isCompleted);
-            } else {
-                return todoRepository.findByCompleted(isCompleted);
-            }
+    /**
+     * Najdi naloge po imenu
+     */
+    public List<Todo> searchByName(String keyword) {
+        return todoRepository.findByNameContainingIgnoreCase(keyword);
+    }
+
+    /**
+     * Filtriraj naloge po statusu
+     */
+    public List<Todo> filterByCompleted(boolean completed) {
+        return todoRepository.findByCompleted(completed);
+    }
+
+    // ========== NOVA METODA ZA TASK-2 - STATISTIKA ==========
+
+    /**
+     * TASK-2: Dobi celotno statistiko nalog
+     *
+     * Pridobi analizo produktivnosti uporabnika:
+     * - Skupno število nalog
+     * - Število dokončanih/nedokončanih nalog
+     * - Odstotek dokončanosti
+     * - Razdelitev po kategorijah
+     * - Razdelitev po prioritetah
+     * - Število pretečenih nalog
+     *
+     * @return TodoStatisticsDTO z vso statistiko
+     */
+    public TodoStatisticsDTO getStatistics() {
+        // 1. OSNOVNA STATISTIKA
+        long totalTasks = todoRepository.count();
+        long completedTasks = todoRepository.countByCompleted(true);
+        long pendingTasks = todoRepository.countByCompleted(false);
+
+        // Izračun odstotka dokončanosti (prepreči deljenje z 0)
+        double completionPercentage = totalTasks > 0
+                ? Math.round((completedTasks * 100.0 / totalTasks) * 10.0) / 10.0  // Zaokroži na 1 decimalno mesto
+                : 0.0;
+
+        // 2. STATISTIKA PO KATEGORIJAH
+        Map<String, Long> tasksByCategory = new HashMap<>();
+        List<Object[]> categoryResults = todoRepository.countByCategory();
+
+        for (Object[] result : categoryResults) {
+            Category category = (Category) result[0];
+            Long count = (Long) result[1];
+            tasksByCategory.put(category.name(), count);
         }
 
-        if (search != null && !search.isEmpty()) {
-            return todoRepository.findByNameContainingIgnoreCase(search);
+        // Dodaj vse kategorije z 0, če ne obstajajo v bazi
+        for (Category category : Category.values()) {
+            tasksByCategory.putIfAbsent(category.name(), 0L);
         }
 
-        return todoRepository.findAll();
+        // 3. STATISTIKA PO PRIORITETAH
+        Map<String, Long> tasksByPriority = new HashMap<>();
+        List<Object[]> priorityResults = todoRepository.countByPriority();
+
+        for (Object[] result : priorityResults) {
+            Priority priority = (Priority) result[0];
+            Long count = (Long) result[1];
+            tasksByPriority.put(priority.name(), count);
+        }
+
+        // Dodaj vse prioritete z 0, če ne obstajajo v bazi
+        for (Priority priority : Priority.values()) {
+            tasksByPriority.putIfAbsent(priority.name(), 0L);
+        }
+
+        // 4. DODATNA STATISTIKA
+        LocalDate today = LocalDate.now();
+        long overdueTasks = todoRepository.countOverdueTasks(today, false); // Samo nedokončane pretečene
+        long tasksWithoutDueDate = todoRepository.countByDueDateIsNull();
+
+        // 5. SESTAVI DTO IN VRNI
+        TodoStatisticsDTO statistics = new TodoStatisticsDTO(
+                totalTasks,
+                completedTasks,
+                pendingTasks,
+                completionPercentage,
+                tasksByCategory,
+                tasksByPriority,
+                overdueTasks,
+                tasksWithoutDueDate
+        );
+
+        // Log za debugging (opcijsko)
+        System.out.println("📊 Generirana statistika: " + statistics);
+
+        return statistics;
+    }
+
+    /**
+     * Dodatna metoda: Dobi naloge po kategoriji
+     */
+    public List<Todo> getTodosByCategory(Category category) {
+        return todoRepository.findByCategory(category);
+    }
+
+    /**
+     * Dodatna metoda: Dobi naloge po prioriteti
+     */
+    public List<Todo> getTodosByPriority(Priority priority) {
+        return todoRepository.findByPriority(priority);
+    }
+
+    /**
+     * Dodatna metoda: Dobi vse visoko prioritetne nedokončane naloge
+     */
+    public List<Todo> getHighPriorityIncompleteTasks() {
+        return todoRepository.findHighPriorityIncompleteTasks();
     }
 }

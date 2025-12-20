@@ -17,7 +17,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * Unit testi za UserService - ČLAN 1
+ * Unit testi za UserService
  *
  * Avtor: Boris Sajlović
  * Datum: 12.12.2025
@@ -147,6 +147,6 @@ class UserServiceTest {
         // Preveri, da je existsByEmail() klican točno 1x
         verify(userRepository, times(1)).existsByEmail(existingEmail);
 
-        System.out.println("✅ ČLAN 1 - NEGATIVEN TEST: Duplikat email pravilno zavrnjen");
+        System.out.println("Boris Sajlovic - NEGATIVEN TEST: Duplikat email pravilno zavrnjen");
     }
 }
