@@ -20,9 +20,9 @@ import com.example.todobackend.model.User;
 import com.example.todobackend.repository.UserRepository;
 
 /**
- * Unit testi za UserService - ČLAN 3
+ * Unit testi za UserService
  *
- * Avtor: [IME ČLANA 3]
+ * Avtor: [Filip Sekulovic]
  * Datum: 12.12.2025
  *
  * Testira VALIDACIJO IN ŠIFRIRANJE GESEL:
@@ -30,7 +30,7 @@ import com.example.todobackend.repository.UserRepository;
  * - TEST 2 (NEGATIVEN): Registracija s praznim geslom
  */
 @ExtendWith(MockitoExtension.class)
-@DisplayName("UserService Tests - Član 3: Validacija Gesla")
+@DisplayName("UserService Tests - Filip Sekulovic: Validacija Gesla")
 class PasswordValidationTest {
 
     @Mock
@@ -148,7 +148,7 @@ class PasswordValidationTest {
         // Preverimo, da je uporabnik shranjen
         verify(userRepository, times(1)).save(any(User.class));
 
-        System.out.println("✅ ČLAN 3 - TEST 2 USPEŠEN: Sistem dovoli prazno geslo (varnostna pomanjkljivost odkrita!)");
-        System.out.println("⚠️ PRIPOROČILO: Dodaj validacijo za minimalno dolžino gesla!");
+        System.out.println(" Filip Sekulovic - TEST 2 USPEŠEN: Sistem dovoli prazno geslo (varnostna pomanjkljivost odkrita!)");
+        System.out.println("️ PRIPOROČILO: Dodaj validacijo za minimalno dolžino gesla!");
     }
 }
