@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="52cede4a-09d6-4ce7-8342-64e6c35d5689" name="Changes" comment="" />
+    <list default="true" id="52cede4a-09d6-4ce7-8342-64e6c35d5689" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo-backend/src/main/java/com/example/todobackend/TodoBackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/todo-backend/src/main/java/com/example/todobackend/TodoBackendApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo-backend/src/main/java/com/example/todobackend/controller/TodoController.java" beforeDir="false" afterPath="$PROJECT_DIR$/todo-backend/src/main/java/com/example/todobackend/controller/TodoController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/todo-backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/todo-backend/src/main/resources/application.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -21,8 +29,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/DELL/Desktop/RIS/todo-backend",
+    "last_opened_file_path": "C:/Users/DELL/Desktop/RIS",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,6 +67,7 @@
       <updated>1760953459625</updated>
       <workItem from="1760953461058" duration="3630000" />
       <workItem from="1761046138023" duration="44000" />
+      <workItem from="1766353450880" duration="541000" />
     </task>
     <servers />
   </component>

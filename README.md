@@ -893,4 +893,168 @@ Naslednji koraki se nanašajo na Git potek dela znotraj vaše ekipe.
 - **Poročajte o odkritih napakah** - posodobite `testiranje/porocilo_testiranja.md`
 
 ---
+---
+
+## 🆕 Sprint 1 - Nove Funkcionalnosti (December 2024)
+
+### ✨ Implementirane Funkcionalnosti
+
+#### 1. **Kategorije Nalog** 📂
+Naloge je mogoče kategorizirati v 6 različnih skupin:
+- 💼 **WORK** (Delo) - Poslovne naloge
+- 🏠 **PERSONAL** (Osebno) - Osebne zadeve
+- 🛒 **SHOPPING** (Nakupovanje) - Seznam za nakup
+- 💪 **HEALTH** (Zdravje) - Fitnes, zdravje
+- 📚 **EDUCATION** (Izobraževanje) - Učenje, šola
+- 📌 **OTHER** (Drugo) - Ostale naloge
+
+#### 2. **Prioritete Nalog** 🎯
+Vsaka naloga ima določeno prioriteto:
+- 🔴 **HIGH** (Visoka) - Nujne naloge
+- 🟡 **MEDIUM** (Srednja) - Normalne naloge
+- 🟢 **LOW** (Nizka) - Manj pomembne
+
+#### 3. **Statistics Dashboard** 📊
+Celotna analiza produktivnosti uporabnika:
+
+**Osnovne Statistike:**
+- Skupno število nalog
+- Število dokončanih nalog
+- Število nedokončanih nalog
+- Odstotek dokončanosti
+
+**Napredne Statistike:**
+- Razdelitev nalog po kategorijah
+- Razdelitev nalog po prioritetah
+- Število pretečenih nalog
+- Število nalog brez roka
+
+**Vizualizacija:**
+- Interaktivne kartice s statistiko
+- Barvno kodirane kategorije in prioritete
+- Motivacijska sporočila glede na napredek
+- Loading in error state handling
+
+---
+
+### 🔧 Tehnične Izboljšave
+
+#### Backend API Endpointi
+
+**Novi Endpointi:**
+```
+GET  /api/todos/statistics    - Celotna statistika nalog
+GET  /api/todos/categories    - Seznam kategorij
+GET  /api/todos/priorities    - Seznam prioritet
+GET  /api/todos/category/{category}  - Naloge po kategoriji
+GET  /api/todos/priority/{priority}  - Naloge po prioriteti
+```
+
+**Primer API Response:**
+```json
+{
+  "totalTasks": 15,
+  "completedTasks": 9,
+  "pendingTasks": 6,
+  "completionPercentage": 60.0,
+  "tasksByCategory": {
+    "WORK": 7,
+    "PERSONAL": 5,
+    "SHOPPING": 3
+  },
+  "tasksByPriority": {
+    "HIGH": 4,
+    "MEDIUM": 8,
+    "LOW": 3
+  }
+}
+```
+
+---
+
+#### Frontend Komponente
+
+**Nove Komponente:**
+- `StatCard.jsx` - Reusable kartica za prikaz statistike
+- `StatsDashboard.jsx` - Glavni dashboard za analizo
+- `StatsDashboard.css` - Stili za dashboard
+
+**Funkcionalnosti:**
+- Toggle med seznamom nalog in statistiko
+- Avtomatski refresh statistike po spremembi nalog
+- Responziven dizajn za mobilne naprave
+- Animacije in hover efekti
+
+---
+
+#### Baza Podatkov
+
+**Nove Kolone v `todos` Tabeli:**
+```sql
+ALTER TABLE todos ADD COLUMN category VARCHAR(20) NOT NULL DEFAULT 'OTHER';
+ALTER TABLE todos ADD COLUMN priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM';
+ALTER TABLE todos ADD COLUMN description VARCHAR(1000);
+```
+
+**Indeksi za Hitrost:**
+```sql
+CREATE INDEX idx_todos_category ON todos(category);
+CREATE INDEX idx_todos_priority ON todos(priority);
+CREATE INDEX idx_todos_completed ON todos(completed);
+```
+
+---
+
+### 🧪 Testiranje - Sprint 1
+
+**Unit Testi:**
+- `TodoServiceTest.java` - 6 testov za osnovne funkcionalnosti
+- `UserServiceTest.java` - 2 testa za registracijo
+- `UserServiceSearchTest.java` - 2 testa za iskanje
+- `PasswordValidationTest.java` - 2 testa za validacijo gesla
+
+**Pokritost Kode:**
+- TodoService: ~75%
+- UserService: ~80%
+- Skupaj: ~77%
+
+**Rezultat:**
+```
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+Podrobno poročilo: [`testiranje/porocilo_testiranja.md`](./testiranje/porocilo_testiranja.md)
+
+---
+
+### 📊 Scrum Implementacija
+
+**Sprint Informacije:**
+- **Začetek:** 16. december 2024
+- **Konec:** 21. december 2024
+- **Trajanje:** 5 dni
+- **Story Points:** 32 SP
+- **Velocity:** 6.4 SP/dan
+
+**Task-i:**
+1. TASK-1: Kreiranje Enuma (3 SP) ✅
+2. TASK-2: REST API za Statistiku (8 SP) ✅
+3. TASK-3: Unit Testi (5 SP) ✅
+4. TASK-4: Frontend Dashboard (8 SP) ✅
+5. TASK-5: API Integracija (3 SP) ✅
+6. TASK-6: Dokumentacija (5 SP) ✅
+
+**Uspešnost:** 100% (vsi task-i dokončani)
+
+Podrobno Scrum poročilo: [`implementacija/porocilo_scrum.md`](./implementacija/porocilo_scrum.md)
+
+
+## 👥 Prispevki Članov Ekipe
+
+| Član | Prispevek |
+|:-----|:----------|
+| **Petar Kojadinović** | Scrum Master, Backend API, Statistika, CORS |
+| **Boris Sajlović** | Backend Unit Testi, UserService Testing |
+| **Filip Sekulović** | Frontend Dashboard, API Integracija, UI/UX |
 
