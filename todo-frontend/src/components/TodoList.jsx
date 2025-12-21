@@ -40,6 +40,11 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
   const formattedDate = todo.dueDate
     ? new Date(todo.dueDate).toLocaleDateString("sr-RS")
     : "Nije definisan";
+  const isOverdue =
+    !todo.completed &&
+    todo.dueDate &&
+    new Date(todo.dueDate).setHours(0, 0, 0, 0) <
+      new Date().setHours(0, 0, 0, 0);
 
   // ✅ FIX: Proveri da reminderAt nije prazan string
   const formattedReminder =
@@ -94,7 +99,6 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
           <>
             <span
               className="todo-name"
-              onClick={() => onToggle(todo.id)}
               style={{
                 color: "#000",
                 fontWeight: 600,
@@ -103,6 +107,30 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
               }}
             >
               {todo.name}, Rok: {formattedDate}
+              {isOverdue && (
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#e53e3e",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                  }}
+                >
+                  Kasni
+                </span>
+              )}
+              {todo.completed && (
+                <span
+                  style={{
+                    marginLeft: "8px",
+                    color: "#38a169",
+                    fontWeight: 700,
+                    fontSize: "12px",
+                  }}
+                >
+                  Zavrseno
+                </span>
+              )}
             </span>
             {formattedReminder && (
               <span
@@ -122,6 +150,12 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
       </div>
 
       <div className="todo-actions">
+        <button
+          onClick={() => onToggle(todo.id)}
+          className="action-button edit-button"
+        >
+          {todo.completed ? "Vrati" : "Zavrseno"}
+        </button>
         <button onClick={handleEdit} className="action-button edit-button">
           {isEditing ? "Sacuvaj" : "Uredi"}
         </button>

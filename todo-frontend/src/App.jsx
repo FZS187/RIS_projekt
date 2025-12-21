@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+﻿import React, { useState, useEffect, useCallback, useRef } from "react";
 import "./App.css";
 
 import LoginPage from "./components/LoginPage";
@@ -7,6 +7,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
 import FilterForm from "./components/FilterForm";
+import StatsDashboard from "./components/StatsDashboard";
 
 const API_URL = "http://localhost:8080/api/todos";
 
@@ -15,14 +16,18 @@ function App() {
   const [user, setUser] = useState(null);
   const [todos, setTodos] = useState([]);
   const [filter, setFilter] = useState({ search: "", status: "all" });
+  const [appView, setAppView] = useState("todos"); // 'todos' or 'stats'
+  const [statsRefresh, setStatsRefresh] = useState(0);
   const reminderTimers = useRef([]);
 
   const handleLogin = (userData) => {
     // Proveri da li je admin (npr. email === admin@admin.com)
-    const isAdmin = userData.email === "admin@admin.com" || userData.name === "admin";
-    
+    const isAdmin =
+      userData.email === "admin@admin.com" || userData.name === "admin";
+
     setUser({ ...userData, isAdmin });
     setCurrentPage(isAdmin ? "admin" : "app");
+    setAppView("todos");
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("userData", JSON.stringify({ ...userData, isAdmin }));
   };
@@ -30,8 +35,12 @@ function App() {
   const handleRegister = (userData) => {
     setUser({ ...userData, isAdmin: false });
     setCurrentPage("app");
+    setAppView("todos");
     localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("userData", JSON.stringify({ ...userData, isAdmin: false }));
+    localStorage.setItem(
+      "userData",
+      JSON.stringify({ ...userData, isAdmin: false })
+    );
   };
 
   const handleLogout = () => {
@@ -54,11 +63,11 @@ function App() {
           throw new Error(`HTTP ${response.status}`);
         }
         const data = await response.json();
-        console.log("📋 Fetched todos:", data);
+        console.log("ðŸ“‹ Fetched todos:", data);
         setTodos(data);
       })
       .catch((error) => {
-        console.error("Greška pri dohvatanju zadataka:", error);
+        console.error("GreÅ¡ka pri dohvatanju zadataka:", error);
         if (error.message.includes("401") || error.message.includes("403")) {
           setCurrentPage("login");
           localStorage.removeItem("loggedIn");
@@ -70,7 +79,7 @@ function App() {
   useEffect(() => {
     const isLogged = localStorage.getItem("loggedIn") === "true";
     const storedUserData = localStorage.getItem("userData");
-    
+
     if (isLogged && storedUserData) {
       const userData = JSON.parse(storedUserData);
       setUser(userData);
@@ -91,7 +100,7 @@ function App() {
     setFilter({ search, status });
   };
 
-  const addTodo = (name, dueDate, reminderAt) => {
+  const addTodo = (name, dueDate, reminderAt, category, priority) => {
     if (!name.trim()) return;
 
     const newTodo = {
@@ -99,9 +108,11 @@ function App() {
       completed: false,
       dueDate: dueDate || null,
       reminderAt: reminderAt || null,
+      category: category || "OTHER",
+      priority: priority || "MEDIUM",
     };
 
-    console.log("➕ Adding todo:", newTodo);
+    console.log("âž• Adding todo:", newTodo);
 
     fetch(API_URL, {
       method: "POST",
@@ -111,10 +122,11 @@ function App() {
     })
       .then((response) => response.json())
       .then((createdTodo) => {
-        console.log("✅ Todo created:", createdTodo);
+        console.log("âœ… Todo created:", createdTodo);
         fetchTodos();
+        setStatsRefresh((prev) => prev + 1);
       })
-      .catch((error) => console.error("Greška pri dodavanju:", error));
+      .catch((error) => console.error("GreÅ¡ka pri dodavanju:", error));
   };
 
   const editTodo = (id, newName, newDueDate, newReminderAt) => {
@@ -137,11 +149,12 @@ function App() {
       .then((response) => {
         if (response.ok) {
           fetchTodos();
+          setStatsRefresh((prev) => prev + 1);
         } else {
-          console.error("Neuspešno uređivanje na serveru");
+          console.error("NeuspeÅ¡no ureÄ‘ivanje na serveru");
         }
       })
-      .catch((error) => console.error("Greška pri uređivanju:", error));
+      .catch((error) => console.error("GreÅ¡ka pri ureÄ‘ivanju:", error));
   };
 
   const toggleTodo = (id) => {
@@ -162,9 +175,10 @@ function App() {
       .then((response) => {
         if (response.ok) {
           fetchTodos();
+          setStatsRefresh((prev) => prev + 1);
         }
       })
-      .catch((error) => console.error("Greška pri promeni statusa:", error));
+      .catch((error) => console.error("GreÅ¡ka pri promeni statusa:", error));
   };
 
   const deleteTodo = (id) => {
@@ -175,9 +189,10 @@ function App() {
       .then((response) => {
         if (response.ok) {
           fetchTodos();
+          setStatsRefresh((prev) => prev + 1);
         }
       })
-      .catch((error) => console.error("Greška pri brisanju:", error));
+      .catch((error) => console.error("GreÅ¡ka pri brisanju:", error));
   };
 
   // Lokalne notifikacije (in-app alert) za reminderAt
@@ -192,7 +207,7 @@ function App() {
         const delay = target - now;
 
         console.log(
-          `⏰ Reminder for "${todo.name}": ${delay}ms (${
+          `â° Reminder for "${todo.name}": ${delay}ms (${
             delay > 0 ? "future" : "past"
           })`
         );
@@ -238,15 +253,10 @@ function App() {
 
   // Admin Dashboard
   if (currentPage === "admin") {
-    return (
-      <AdminDashboard
-        onLogout={handleLogout}
-        user={user}
-      />
-    );
+    return <AdminDashboard onLogout={handleLogout} user={user} />;
   }
 
-  // Obična korisnička strana
+  // ObiÄna korisniÄka strana
   return (
     <div
       style={{
@@ -270,12 +280,14 @@ function App() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            flexWrap: "wrap",
+            gap: "16px",
             marginBottom: "30px",
             paddingBottom: "20px",
             borderBottom: "2px solid #e2e8f0",
           }}
         >
-          <div>
+          <div style={{ flex: "1 1 260px", minWidth: "240px" }}>
             <h1
               style={{
                 fontSize: "32px",
@@ -295,47 +307,96 @@ function App() {
                 margin: 0,
               }}
             >
-              Dobrodošli, {user?.name || "Korisniče"}!
+              Dobrodosli, {user?.name || "KorisniŽ?e"}!
             </p>
           </div>
-          <button
-            onClick={handleLogout}
+          <div
             style={{
               display: "flex",
+              gap: "10px",
               alignItems: "center",
-              gap: "8px",
-              padding: "10px 20px",
-              background: "white",
-              border: "2px solid #e2e8f0",
-              borderRadius: "8px",
-              color: "#718096",
-              cursor: "pointer",
-              fontSize: "14px",
-              fontWeight: "600",
-              transition: "all 0.2s",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.borderColor = "#667eea";
-              e.target.style.color = "#667eea";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.borderColor = "#e2e8f0";
-              e.target.style.color = "#718096";
+              flexWrap: "wrap",
             }}
           >
-            <span style={{ fontSize: "18px" }}>🚪</span>
-            Odjavi se
-          </button>
+            <button
+              onClick={() =>
+                setAppView(appView === "todos" ? "stats" : "todos")
+              }
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 16px",
+                background: "white",
+                border: "2px solid #e2e8f0",
+                borderRadius: "8px",
+                color: "#4a5568",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = "#667eea";
+                e.target.style.color = "#667eea";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = "#e2e8f0";
+                e.target.style.color = "#4a5568";
+              }}
+            >
+              {appView === "todos" ? "View stats" : "Back to tasks"}
+            </button>
+            <button
+              onClick={handleLogout}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "10px 20px",
+                background: "white",
+                border: "2px solid #e2e8f0",
+                borderRadius: "8px",
+                color: "#718096",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "600",
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.borderColor = "#667eea";
+                e.target.style.color = "#667eea";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderColor = "#e2e8f0";
+                e.target.style.color = "#718096";
+              }}
+            >
+              <span style={{ fontSize: "18px" }}>dYs¦</span>
+              Odjavi se
+            </button>
+          </div>
         </div>
 
-        <TodoForm onAdd={addTodo} />
-        <FilterForm onFilterChange={handleFilterChange} />
-        <TodoList
-          todos={todos}
-          onToggle={toggleTodo}
-          onDelete={deleteTodo}
-          onEdit={editTodo}
-        />
+        {appView === "stats" ? (
+          <div style={{ marginTop: "10px" }}>
+            <StatsDashboard
+              isActive={appView === "stats"}
+              refreshKey={statsRefresh}
+            />
+          </div>
+        ) : (
+          <>
+            <TodoForm onAdd={addTodo} />
+            <FilterForm onFilterChange={handleFilterChange} />
+            <TodoList
+              todos={todos}
+              onToggle={toggleTodo}
+              onDelete={deleteTodo}
+              onEdit={editTodo}
+            />
+          </>
+        )}
       </div>
     </div>
   );
