@@ -20,7 +20,13 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/todos")
-@CrossOrigin(origins = "http://localhost:5173") // React dev server
+@CrossOrigin(
+        origins = {"http://localhost:5173", "http://127.0.0.1:5173"},
+        methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH, RequestMethod.OPTIONS},
+        allowedHeaders = "*",
+        allowCredentials = "true",
+        maxAge = 3600
+)
 public class TodoController {
 
     @Autowired

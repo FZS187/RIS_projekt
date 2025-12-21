@@ -8,6 +8,6 @@ public class TodoBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(TodoBackendApplication.class, args);
+		System.out.println("✅ Todo Backend pokrenut na http://localhost:8080");
 	}
-
 }
