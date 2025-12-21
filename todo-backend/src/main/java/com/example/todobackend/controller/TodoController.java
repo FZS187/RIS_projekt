@@ -182,4 +182,26 @@ public class TodoController {
         List<Todo> todos = todoService.getHighPriorityIncompleteTasks();
         return ResponseEntity.ok(todos);
     }
+
+    /**
+     * GET /api/todos/categories - Dobi seznam kategorij
+     */
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        List<String> categories = java.util.Arrays.stream(Category.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(categories);
+    }
+
+    /**
+     * GET /api/todos/priorities - Dobi seznam prioritet
+     */
+    @GetMapping("/priorities")
+    public ResponseEntity<List<String>> getPriorities() {
+        List<String> priorities = java.util.Arrays.stream(Priority.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(priorities);
+    }
 }
