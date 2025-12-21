@@ -26,7 +26,7 @@ public class TodoService {
     @Autowired
     private TodoRepository todoRepository;
 
-    // ========== OBSTOJECE METODE (če že obstajajo) ==========
+    // ========== OBSTOJECE METODE (Äe Å¾e obstajajo) ==========
 
     /**
      * Dobi vse naloge
@@ -46,7 +46,7 @@ public class TodoService {
      * Ustvari novo nalogo
      */
     public Todo createTodo(Todo todo) {
-        // Nastavi privzete vrednosti, če niso podane
+        // Nastavi privzete vrednosti, Äe niso podane
         if (todo.getCategory() == null) {
             todo.setCategory(Category.OTHER);
         }
@@ -57,7 +57,7 @@ public class TodoService {
     }
 
     /**
-     * Posodobi obstoječo nalogo
+     * Posodobi obstojeÄo nalogo
      */
     public Todo updateTodo(Long id, Todo todoDetails) {
         Todo todo = todoRepository.findById(id)
@@ -75,14 +75,14 @@ public class TodoService {
     }
 
     /**
-     * Izbriši nalogo
+     * IzbriÅ¡i nalogo
      */
     public void deleteTodo(Long id) {
         todoRepository.deleteById(id);
     }
 
     /**
-     * Preklopi status dokončanosti
+     * Preklopi status dokonÄanosti
      */
     public Todo toggleComplete(Long id) {
         Todo todo = todoRepository.findById(id)
@@ -112,12 +112,12 @@ public class TodoService {
      * TASK-2: Dobi celotno statistiko nalog
      *
      * Pridobi analizo produktivnosti uporabnika:
-     * - Skupno število nalog
-     * - Število dokončanih/nedokončanih nalog
-     * - Odstotek dokončanosti
+     * - Skupno Å¡tevilo nalog
+     * - Å tevilo dokonÄanih/nedokonÄanih nalog
+     * - Odstotek dokonÄanosti
      * - Razdelitev po kategorijah
      * - Razdelitev po prioritetah
-     * - Število pretečenih nalog
+     * - Å tevilo preteÄenih nalog
      *
      * @return TodoStatisticsDTO z vso statistiko
      */
@@ -127,9 +127,9 @@ public class TodoService {
         long completedTasks = todoRepository.countByCompleted(true);
         long pendingTasks = todoRepository.countByCompleted(false);
 
-        // Izračun odstotka dokončanosti (prepreči deljenje z 0)
+        // IzraÄun odstotka dokonÄanosti (prepreÄi deljenje z 0)
         double completionPercentage = totalTasks > 0
-                ? Math.round((completedTasks * 100.0 / totalTasks) * 10.0) / 10.0  // Zaokroži na 1 decimalno mesto
+                ? Math.round((completedTasks * 100.0 / totalTasks) * 10.0) / 10.0  // ZaokroÅ¾i na 1 decimalno mesto
                 : 0.0;
 
         // 2. STATISTIKA PO KATEGORIJAH
@@ -142,7 +142,7 @@ public class TodoService {
             tasksByCategory.put(category.name(), count);
         }
 
-        // Dodaj vse kategorije z 0, če ne obstajajo v bazi
+        // Dodaj vse kategorije z 0, Äe ne obstajajo v bazi
         for (Category category : Category.values()) {
             tasksByCategory.putIfAbsent(category.name(), 0L);
         }
@@ -157,14 +157,14 @@ public class TodoService {
             tasksByPriority.put(priority.name(), count);
         }
 
-        // Dodaj vse prioritete z 0, če ne obstajajo v bazi
+        // Dodaj vse prioritete z 0, Äe ne obstajajo v bazi
         for (Priority priority : Priority.values()) {
             tasksByPriority.putIfAbsent(priority.name(), 0L);
         }
 
         // 4. DODATNA STATISTIKA
         LocalDate today = LocalDate.now();
-        long overdueTasks = todoRepository.countOverdueTasks(today, false); // Samo nedokončane pretečene
+        long overdueTasks = todoRepository.countOverdueTasks(today, false); // Samo nedokonÄane preteÄene
         long tasksWithoutDueDate = todoRepository.countByDueDateIsNull();
 
         // 5. SESTAVI DTO IN VRNI
@@ -178,9 +178,6 @@ public class TodoService {
                 overdueTasks,
                 tasksWithoutDueDate
         );
-
-        // Log za debugging (opcijsko)
-        System.out.println("📊 Generirana statistika: " + statistics);
 
         return statistics;
     }
@@ -200,7 +197,7 @@ public class TodoService {
     }
 
     /**
-     * Dodatna metoda: Dobi vse visoko prioritetne nedokončane naloge
+     * Dodatna metoda: Dobi vse visoko prioritetne nedokonÄane naloge
      */
     public List<Todo> getHighPriorityIncompleteTasks() {
         return todoRepository.findHighPriorityIncompleteTasks();
