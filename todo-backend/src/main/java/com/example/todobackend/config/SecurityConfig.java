@@ -43,6 +43,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/todos/categories").permitAll()  // ✅ DODAJ
+                        .requestMatchers("/api/todos/priorities").permitAll()  // ✅ DODAJ
                         // Ostalo zahtijeva autentifikaciju
                         .anyRequest().authenticated()
                 )
@@ -70,21 +72,26 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Eksplicitno dozvoli origin
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        // ILI specifično:
-        // configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000"));
+        // ✅ EKSPLICITNO navedi origin (ne koristi * sa credentials)
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+        ));
 
-        // Dozvoli sve metode
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"));
+        // ✅ Dozvoli sve metode
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"
+        ));
 
-        // Dozvoli sve headere
+        // ✅ Dozvoli sve headere
         configuration.setAllowedHeaders(Arrays.asList("*"));
 
-        // Izloži headere
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        // ✅ Izloži headere
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization", "Content-Type"
+        ));
 
-        // Dozvoli credentials (cookies, auth headers)
+        // ✅ Dozvoli credentials
         configuration.setAllowCredentials(true);
 
         // Cache preflight za 1h

@@ -31,7 +31,7 @@ public class AuthController {
     public ResponseEntity<?> register(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         try {
             // Registruj korisnika
-            User user = userService.register(request.email(), request.password());
+            User user = userService.register(request.name(), request.email(), request.password());
 
             // AUTOMATSKI ULOGUJ nakon registracije
             Authentication authentication = authenticationManager.authenticate(
@@ -50,11 +50,13 @@ public class AuthController {
             return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
-                    "name", user.getEmail(), // ili ako imaš name polje: user.getName()
+                    "name", user.getName() != null ? user.getName() : user.getEmail(),
                     "message", "Registered and logged in"
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 
@@ -72,9 +74,14 @@ public class AuthController {
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
+            // Dohvati korisnika iz baze
+            User user = userService.findByEmail(request.email())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
             return ResponseEntity.ok(Map.of(
-                    "email", request.email(),
-                    "name", request.email(),
+                    "id", user.getId(),
+                    "email", user.getEmail(),
+                    "name", user.getName() != null ? user.getName() : user.getEmail(),
                     "message", "Logged in"
             ));
         } catch (Exception e) {
@@ -82,6 +89,16 @@ public class AuthController {
         }
     }
 
-    public record AuthRequest(String email, String password) {
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest httpRequest) {
+        HttpSession session = httpRequest.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
+    }
+
+    public record AuthRequest(String name, String email, String password) {
     }
 }
