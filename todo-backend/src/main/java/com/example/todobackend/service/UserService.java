@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 /**
- * Servis za upravljanje uporabnikov
+ * Servis za upravljanje korisnicima
  */
 @Service
 public class UserService {
@@ -22,44 +22,51 @@ public class UserService {
     }
 
     /**
-     * Registrira novega uporabnika
+     * Registruje novog korisnika
      *
-     * @param email Email uporabnika
-     * @param password Geslo v plain text
-     * @return Registriran uporabnik
-     * @throws IllegalArgumentException če email že obstaja
+     * @param name Ime korisnika
+     * @param email Email korisnika
+     * @param rawPassword Lozinka u plain text
+     * @return Registrovan korisnik
+     * @throws IllegalArgumentException Ako email već postoji
      */
-    /**
-     * Registrira novega uporabnika
-     *
-     * @param email Email uporabnika
-     * @param rawPassword Geslo v plain text
-     * @return Registriran uporabnik
-     * @throws IllegalArgumentException če email že obstaja
-     */
-    public User register(String email, String rawPassword) {
-        // Preverimo, če email že obstaja
+    public User register(String name, String email, String rawPassword) {
+        // Proveri da li email već postoji
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Email already exists");
         }
 
-        // Šifriramo geslo
+        // Šifriraj lozinku
         String hashedPassword = passwordEncoder.encode(rawPassword);
 
-        // Kreiramo novega uporabnika
-        User user = new User(email, hashedPassword, "ROLE_USER");
+        // Kreiraj novog korisnika
+        User user = new User();
+        user.setName(name);
+        user.setEmail(email);
+        user.setPassword(hashedPassword);
+        user.setRole("ROLE_USER");
 
-        // Shranimo v bazo
+        // Sačuvaj u bazu
         return userRepository.save(user);
     }
 
     /**
-     * Najde uporabnika po emailu
+     * Pronađi korisnika po email-u
      *
-     * @param email Email uporabnika
-     * @return Optional z uporabnikom ali prazen Optional
+     * @param email Email korisnika
+     * @return Optional sa korisnikom ili prazan Optional
      */
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    /**
+     * Proveri da li korisnik sa datim email-om postoji
+     *
+     * @param email Email za proveru
+     * @return true ako postoji, false ako ne postoji
+     */
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
