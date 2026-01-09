@@ -60,6 +60,13 @@ public class Todo {
     @Column(nullable = false, length = 20)
     private Priority priority = Priority.MEDIUM;
 
+    /**
+     * Status sinhronizacije (null pomeni, da ni sinhronizirano)
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sync_status", length = 20)
+    private SyncStatus syncStatus;
+
     // ========== KONSTRUKTORJI ==========
 
     /**
@@ -179,6 +186,19 @@ public class Todo {
     public void setPriority(Priority priority) {
         this.priority = priority != null ? priority : Priority.MEDIUM;
     }
+    /**
+     * @return Status sinhronizacije
+     */
+    public SyncStatus getSyncStatus() {
+        return syncStatus;
+    }
+
+    /**
+     * @param syncStatus Status sinhronizacije
+     */
+    public void setSyncStatus(SyncStatus syncStatus) {
+        this.syncStatus = syncStatus;
+    }
 
     // ========== POMOŽNE METODE ==========
 
@@ -213,6 +233,7 @@ public class Todo {
                 ", completed=" + completed +
                 ", category=" + category +
                 ", priority=" + priority +
+                ", syncStatus=" + syncStatus +
                 ", dueDate=" + dueDate +
                 ", reminderAt=" + reminderAt +
                 '}';

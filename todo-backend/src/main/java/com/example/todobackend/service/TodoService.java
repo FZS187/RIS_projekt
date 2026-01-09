@@ -3,6 +3,7 @@ package com.example.todobackend.service;
 import com.example.todobackend.dto.TodoStatisticsDTO;
 import com.example.todobackend.model.Category;
 import com.example.todobackend.model.Priority;
+import com.example.todobackend.model.SyncStatus;
 import com.example.todobackend.model.Todo;
 import com.example.todobackend.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,9 @@ public class TodoService {
         if (todo.getPriority() == null) {
             todo.setPriority(Priority.MEDIUM);
         }
+        if (todo.getSyncStatus() == null) {
+            todo.setSyncStatus(SyncStatus.USPESNO);
+        }
         return todoRepository.save(todo);
     }
 
@@ -70,6 +74,7 @@ public class TodoService {
         todo.setReminderAt(todoDetails.getReminderAt());
         todo.setCategory(todoDetails.getCategory());
         todo.setPriority(todoDetails.getPriority());
+        todo.setSyncStatus(todoDetails.getSyncStatus());
 
         return todoRepository.save(todo);
     }
