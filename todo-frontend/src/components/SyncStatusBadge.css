@@ -1,0 +1,128 @@
+/* Osnovna klasa za sync badge */
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Status: V teku (IN_PROGRESS) - Rumena boja */
+.sync-in-progress {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Status: Zaključeno (COMPLETED) - Zelena boja */
+.sync-completed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #28a745;
+}
+
+/* Status: Neuspešno (FAILED) - Crvena boja */
+.sync-failed {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #dc3545;
+  cursor: pointer;
+}
+
+/* Status: Čakanje (PENDING) - Siva boja */
+.sync-pending {
+  background-color: #e2e3e5;
+  color: #383d41;
+  border: 1px solid #6c757d;
+}
+
+/* Ikona */
+.sync-icon {
+  display: inline-block;
+  font-size: 14px;
+}
+
+/* Animacija rotacije za "V teku" status */
+.sync-icon.spinning {
+  animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tekst statusa */
+.sync-text {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+/* Tooltip za grešku */
+.sync-error-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  margin-bottom: 5px;
+  z-index: 1000;
+}
+
+.sync-failed:hover .sync-error-tooltip {
+  opacity: 1;
+}
+
+/* Responsivni dizajn */
+@media (max-width: 768px) {
+  .sync-badge {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  
+  .sync-icon {
+    font-size: 12px;
+  }
+  
+  .sync-text {
+    font-size: 10px;
+  }
+}
+
+/* Dodatne animacije */
+.sync-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Pulsiranje za "V teku" status */
+.sync-in-progress {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.6);
+  }
+}
