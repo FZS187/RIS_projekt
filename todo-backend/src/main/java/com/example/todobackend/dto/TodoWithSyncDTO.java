@@ -1,10 +1,14 @@
 package com.example.todobackend.dto;
 
+import com.example.todobackend.model.SyncStatus;
 import com.example.todobackend.model.TaskSyncStatus;
 import com.example.todobackend.model.Todo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/**
+ * ✅ TASK 4 & 5: DTO koji jasno prikazuje status sinhronizacije
+ */
 public class TodoWithSyncDTO {
 
     private Long id;
@@ -18,14 +22,21 @@ public class TodoWithSyncDTO {
 
     // Nested DTO za sync status
     public static class SyncStatusDTO {
-        private String status;
-        private String displayName;
+        private String status; // PENDING, IN_PROGRESS, COMPLETED, FAILED
+        private String displayName; // Čakanje, V teku, Zaključeno, Neuspešno
+        private String todoSyncStatus; // V_TEKU, USPESNO, NAPAKA (iz Todo modela)
         private LocalDateTime startedAt;
         private LocalDateTime completedAt;
         private String errorMessage;
         private LocalDateTime lastSynced;
 
-        public SyncStatusDTO(TaskSyncStatus syncStatus) {
+        // ✅ TASK 4: Dodatna polja za frontend
+        private boolean isSuccess; // Da li je sinhronizacija uspešna
+        private boolean isFailed;  // Da li je sinhronizacija neuspešna
+        private boolean isInProgress; // Da li je sinhronizacija u toku
+        private String userMessage; // ✅ TASK 5: Razumljivo obvestilo za korisnika
+
+        public SyncStatusDTO(TaskSyncStatus syncStatus, Todo todo) {
             if (syncStatus != null) {
                 this.status = syncStatus.getStatus().name();
                 this.displayName = syncStatus.getStatus().getDisplayName();
@@ -33,6 +44,37 @@ public class TodoWithSyncDTO {
                 this.completedAt = syncStatus.getCompletedAt();
                 this.errorMessage = syncStatus.getErrorMessage();
                 this.lastSynced = syncStatus.getLastSynced();
+
+                // Postavi boolean flagove
+                this.isSuccess = syncStatus.getStatus() == TaskSyncStatus.SyncStatus.COMPLETED;
+                this.isFailed = syncStatus.getStatus() == TaskSyncStatus.SyncStatus.FAILED;
+                this.isInProgress = syncStatus.getStatus() == TaskSyncStatus.SyncStatus.IN_PROGRESS;
+            }
+
+            // Uzmi Todo.syncStatus
+            if (todo != null && todo.getSyncStatus() != null) {
+                this.todoSyncStatus = todo.getSyncStatus().name();
+            }
+
+            // ✅ TASK 5: Generiši razumljivo obvestilo za korisnika
+            this.userMessage = generateUserMessage();
+        }
+
+        /**
+         * ✅ TASK 5: Generiši kratko i razumljivo obvestilo za korisnika
+         */
+        private String generateUserMessage() {
+            if (isSuccess) {
+                return "✅ Sinhronizacija uspešna";
+            } else if (isFailed) {
+                if (errorMessage != null && !errorMessage.isEmpty()) {
+                    return "❌ Sinhronizacija nije uspela: " + errorMessage;
+                }
+                return "❌ Sinhronizacija nije uspela. Pokušajte ponovo.";
+            } else if (isInProgress) {
+                return "⏳ Sinhronizacija u toku...";
+            } else {
+                return "⏸️ Čeka na sinhronizaciju";
             }
         }
 
@@ -42,6 +84,9 @@ public class TodoWithSyncDTO {
 
         public String getDisplayName() { return displayName; }
         public void setDisplayName(String displayName) { this.displayName = displayName; }
+
+        public String getTodoSyncStatus() { return todoSyncStatus; }
+        public void setTodoSyncStatus(String todoSyncStatus) { this.todoSyncStatus = todoSyncStatus; }
 
         public LocalDateTime getStartedAt() { return startedAt; }
         public void setStartedAt(LocalDateTime startedAt) { this.startedAt = startedAt; }
@@ -54,9 +99,21 @@ public class TodoWithSyncDTO {
 
         public LocalDateTime getLastSynced() { return lastSynced; }
         public void setLastSynced(LocalDateTime lastSynced) { this.lastSynced = lastSynced; }
+
+        public boolean isSuccess() { return isSuccess; }
+        public void setSuccess(boolean success) { isSuccess = success; }
+
+        public boolean isFailed() { return isFailed; }
+        public void setFailed(boolean failed) { isFailed = failed; }
+
+        public boolean isInProgress() { return isInProgress; }
+        public void setInProgress(boolean inProgress) { isInProgress = inProgress; }
+
+        public String getUserMessage() { return userMessage; }
+        public void setUserMessage(String userMessage) { this.userMessage = userMessage; }
     }
 
-    // Constructor
+    // Constructor - ✅ TASK 3: Prosledi Todo objekat za pristup syncStatus
     public TodoWithSyncDTO(Todo todo, TaskSyncStatus syncStatus) {
         this.id = todo.getId();
         this.title = todo.getName();
@@ -65,7 +122,7 @@ public class TodoWithSyncDTO {
         this.dueDate = todo.getDueDate();
         this.category = todo.getCategory() != null ? todo.getCategory().name() : null;
         this.priority = todo.getPriority() != null ? todo.getPriority().name() : null;
-        this.syncStatus = new SyncStatusDTO(syncStatus);
+        this.syncStatus = new SyncStatusDTO(syncStatus, todo); // Prosledi i Todo
     }
 
     // Getters and Setters

@@ -5,182 +5,267 @@ import './TodoList.css';
 
 const API_URL = 'http://localhost:8080/api/todos';
 
-const TodoList = () => {
-  const [todos, setTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
+const TodoList = ({ todos, onToggle, onDelete, onEdit }) => {
+  const [localTodos, setLocalTodos] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [newTodo, setNewTodo] = useState({ title: '', description: '', dueDate: '' });
   const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', dueDate: '', reminderAt: '' });
 
-  // Dohvati sve naloge sa sync statusima
-  const fetchTodos = async () => {
+  // ✅ Refresh todos svake 3 sekunde da vidimo promenu sync statusa
+  useEffect(() => {
+    const fetchTodosWithSync = async () => {
+      try {
+        const response = await axios.get(API_URL, { withCredentials: true });
+        setLocalTodos(response.data);
+      } catch (err) {
+        console.error('Greška pri učitavanju:', err);
+      }
+    };
+
+    fetchTodosWithSync();
+
+    const interval = setInterval(() => {
+      fetchTodosWithSync();
+    }, 3000); // Svake 3 sekunde
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Sync sa parent todos prop-om
+  useEffect(() => {
+    if (todos && todos.length > 0) {
+      setLocalTodos(todos);
+    }
+  }, [todos]);
+
+  // ✅ Ručno pokreni sinhronizaciju
+  const handleManualSync = async (todoId) => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL);
-      setTodos(response.data);
-      setError(null);
+      await axios.post(`${API_URL}/${todoId}/sync`, {}, { withCredentials: true });
+      
+      // Refresh nakon 2 sekunde da vidimo rezultat
+      setTimeout(async () => {
+        const response = await axios.get(API_URL, { withCredentials: true });
+        setLocalTodos(response.data);
+        setLoading(false);
+      }, 2000);
     } catch (err) {
-      setError('Greška pri učitavanju nalog');
+      setError('Greška pri pokretanju sinhronizacije');
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchTodos();
+  // Započni uređivanje
+  const startEdit = (todo) => {
+    setEditingId(todo.id);
+    setEditForm({
+      name: todo.title || todo.name || '',
+      dueDate: todo.dueDate || '',
+      reminderAt: todo.reminderAt || ''
+    });
+  };
+
+  // Sačuvaj izmene
+  const saveEdit = (todoId) => {
+    if (onEdit) {
+      onEdit(todoId, editForm.name, editForm.dueDate, editForm.reminderAt);
+    }
+    setEditingId(null);
+    setEditForm({ name: '', dueDate: '', reminderAt: '' });
+  };
+
+  // Otkaži uređivanje
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({ name: '', dueDate: '', reminderAt: '' });
+  };
+
+  // ✅ TASK 5: Prikaži user-friendly poruku
+  const getUserMessage = (syncStatus) => {
+    if (!syncStatus) return null;
     
-    // Refresh sync statusa svake 3 sekunde
-    const interval = setInterval(() => {
-      fetchTodos();
-    }, 3000);
+    if (syncStatus.userMessage) {
+      return syncStatus.userMessage;
+    }
     
-    return () => clearInterval(interval);
-  }, []);
-
-  // Kreiraj novu nalog
-  const handleCreateTodo = async (e) => {
-    e.preventDefault();
-    if (!newTodo.title.trim()) return;
-
-    try {
-      const response = await axios.post(API_URL, newTodo);
-      setTodos([...todos, response.data]);
-      setNewTodo({ title: '', description: '', dueDate: '' });
-      
-      // Refresh nakon 2 sekunde da vidimo promenu statusa
-      setTimeout(fetchTodos, 2000);
-    } catch (err) {
-      setError('Greška pri kreiranju naloge');
-      console.error(err);
-    }
+    // Fallback ako userMessage ne postoji
+    if (syncStatus.isSuccess) return '✅ Sinhronizacija uspešna';
+    if (syncStatus.isFailed) return `❌ Greška: ${syncStatus.errorMessage || 'Nepoznata greška'}`;
+    if (syncStatus.isInProgress) return '⏳ Sinhronizacija u toku...';
+    return '⏸️ Čeka na sinhronizaciju';
   };
 
-  // Označi kao završeno/nezavršeno
-  const handleToggleComplete = async (todo) => {
-    try {
-      const updated = { ...todo, completed: !todo.completed };
-      await axios.put(`${API_URL}/${todo.id}`, updated);
-      fetchTodos();
-    } catch (err) {
-      setError('Greška pri ažuriranju naloge');
-      console.error(err);
-    }
-  };
-
-  // Ručno pokreni sinhronizaciju
-  const handleManualSync = async (todoId) => {
-    try {
-      await axios.post(`${API_URL}/${todoId}/sync`);
-      fetchTodos();
-    } catch (err) {
-      setError('Greška pri pokretanju sinhronizacije');
-      console.error(err);
-    }
-  };
-
-  // Izbriši nalog
-  const handleDelete = async (id) => {
-    if (window.confirm('Da li ste sigurni da želite izbrisati ovu nalog?')) {
-      try {
-        await axios.delete(`${API_URL}/${id}`);
-        setTodos(todos.filter(t => t.id !== id));
-      } catch (err) {
-        setError('Greška pri brisanju naloge');
-        console.error(err);
-      }
-    }
-  };
-
-  if (loading) {
-    return <div className="loading">Učitavanje nalog...</div>;
+  if (localTodos.length === 0) {
+    return (
+      <div className="no-todos">
+        <p>📝 Nema zadataka. Dodajte novu nalog!</p>
+      </div>
+    );
   }
 
   return (
-    <div className="todo-container">
-      <h1>📋 Moje Naloge</h1>
-      
+    <div className="todo-list">
       {error && <div className="error-message">{error}</div>}
       
-      {/* Forma za novu nalog */}
-      <form onSubmit={handleCreateTodo} className="todo-form">
-        <input
-          type="text"
-          placeholder="Naziv naloge..."
-          value={newTodo.title}
-          onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-          className="todo-input"
-        />
-        <input
-          type="text"
-          placeholder="Opis (opciono)..."
-          value={newTodo.description}
-          onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
-          className="todo-input"
-        />
-        <input
-          type="date"
-          value={newTodo.dueDate}
-          onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
-          className="todo-input"
-        />
-        <button type="submit" className="btn-add">Dodaj Nalog</button>
-      </form>
-
-      {/* Lista nalog */}
-      <div className="todo-list">
-        {todos.length === 0 ? (
-          <p className="no-todos">Nema nalog. Dodajte novu nalog!</p>
-        ) : (
-          todos.map(todo => (
-            <div key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
-              <div className="todo-content">
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => handleToggleComplete(todo)}
-                  className="todo-checkbox"
-                />
-                <div className="todo-details">
-                  <h3 className="todo-title">{todo.title}</h3>
+      {localTodos.map((todo) => (
+        <div 
+          key={todo.id} 
+          className={`todo-item ${todo.completed ? 'completed' : ''}`}
+        >
+          {/* Checkbox i Naziv */}
+          <div className="todo-content">
+            <input
+              type="checkbox"
+              checked={todo.completed || false}
+              onChange={() => onToggle && onToggle(todo.id)}
+              className="todo-checkbox"
+              disabled={loading}
+            />
+            
+            <div className="todo-details">
+              {editingId === todo.id ? (
+                // Edit mode
+                <div>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className="todo-input"
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="date"
+                    value={editForm.dueDate}
+                    onChange={(e) => setEditForm({ ...editForm, dueDate: e.target.value })}
+                    className="todo-input"
+                    style={{ marginBottom: '8px' }}
+                  />
+                  <input
+                    type="datetime-local"
+                    value={editForm.reminderAt}
+                    onChange={(e) => setEditForm({ ...editForm, reminderAt: e.target.value })}
+                    className="todo-input"
+                  />
+                </div>
+              ) : (
+                // View mode
+                <>
+                  <h3 className="todo-title">
+                    {todo.title || todo.name}
+                  </h3>
                   {todo.description && (
                     <p className="todo-description">{todo.description}</p>
                   )}
                   {todo.dueDate && (
                     <span className="todo-date">📅 {todo.dueDate}</span>
                   )}
-                </div>
-              </div>
-              
-              {/* Sync Status Badge */}
-              <div className="todo-actions">
+                  {todo.category && (
+                    <span className="todo-category" style={{
+                      marginLeft: '8px',
+                      padding: '2px 8px',
+                      background: '#f0f0f0',
+                      borderRadius: '4px',
+                      fontSize: '12px'
+                    }}>
+                      {todo.category}
+                    </span>
+                  )}
+                  {todo.priority && (
+                    <span className="todo-priority" style={{
+                      marginLeft: '8px',
+                      padding: '2px 8px',
+                      background: todo.priority === 'HIGH' ? '#ffe0e0' : '#f0f0f0',
+                      borderRadius: '4px',
+                      fontSize: '12px'
+                    }}>
+                      {todo.priority}
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* ✅ TASK 4: Sync Status Badge - Jasno prikazuje status */}
+          <div className="todo-actions">
+            {todo.syncStatus && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'flex-end' }}>
                 <SyncStatusBadge syncStatus={todo.syncStatus} />
                 
+                {/* ✅ TASK 5: Razumljivo obvestilo za korisnika */}
+                <span style={{
+                  fontSize: '11px',
+                  color: '#666',
+                  fontStyle: 'italic',
+                  maxWidth: '200px',
+                  textAlign: 'right'
+                }}>
+                  {getUserMessage(todo.syncStatus)}
+                </span>
+              </div>
+            )}
+            
+            {/* Edit/Save/Cancel dugmad */}
+            {editingId === todo.id ? (
+              <>
+                <button 
+                  onClick={() => saveEdit(todo.id)}
+                  className="btn-sync"
+                  style={{ background: '#28a745' }}
+                >
+                  💾 Sačuvaj
+                </button>
+                <button 
+                  onClick={cancelEdit}
+                  className="btn-delete"
+                  style={{ background: '#6c757d' }}
+                >
+                  ❌ Otkaži
+                </button>
+              </>
+            ) : (
+              <>
                 {/* Dugme za ručnu sinhronizaciju */}
                 {todo.syncStatus?.status !== 'IN_PROGRESS' && (
                   <button 
                     onClick={() => handleManualSync(todo.id)}
                     className="btn-sync"
                     title="Ručna sinhronizacija"
+                    disabled={loading}
                   >
                     🔄 Sync
                   </button>
                 )}
                 
+                {/* Edit dugme */}
                 <button 
-                  onClick={() => handleDelete(todo.id)}
+                  onClick={() => startEdit(todo)}
+                  className="btn-sync"
+                  style={{ background: '#ffc107', color: '#000' }}
+                  title="Uredi nalog"
+                >
+                  ✏️
+                </button>
+                
+                {/* Delete dugme */}
+                <button 
+                  onClick={() => onDelete && onDelete(todo.id)}
                   className="btn-delete"
+                  title="Izbriši nalog"
                 >
                   🗑️
                 </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+              </>
+            )}
+          </div>
+        </div>
+      ))}
       
-      {/* Informacija o auto-refresh */}
-      <div className="info-box">
+      {/* ✅ Informacija o auto-refresh */}
+      <div className="info-box" style={{ marginTop: '20px' }}>
         ℹ️ Status sinhronizacije se automatski ažurira svake 3 sekunde
       </div>
     </div>
