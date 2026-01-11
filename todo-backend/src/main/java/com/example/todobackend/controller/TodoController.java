@@ -13,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -191,30 +193,62 @@ public class TodoController {
     }
 
     /**
-     * POST /api/todos/{id}/sync - Ročno pokreni sinhronizacijo za določeno nalogo
+     * ✅ TASK 3 & 4: POST /api/todos/{id}/sync - Ručno pokreni sinhronizaciju i vrati konačni status
+     * Ovaj endpoint SINHRONIZUJE Todo sa Google Calendar-om i vraća konačni status
      */
     @PostMapping("/{id}/sync")
     public ResponseEntity<TodoWithSyncDTO> triggerSync(@PathVariable Long id) {
         return todoService.getTodoById(id)
                 .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.startSync(todo);
+                    // Pokreni sinhronizaciju SADA (ne asinhrono)
+                    TaskSyncStatus syncStatus = syncService.simulateSync(todo);
 
-                    new Thread(() -> {
-                        syncService.simulateSync(todo);
-                    }).start();
+                    // Refresh todo iz baze da dobijemo ažurirani syncStatus
+                    Todo updatedTodo = todoService.getTodoById(id).orElse(todo);
 
-                    return ResponseEntity.ok(new TodoWithSyncDTO(todo, syncStatus));
+                    // ✅ TASK 3: Vraća konačni status (USPESNO ili NAPAKA)
+                    return ResponseEntity.ok(new TodoWithSyncDTO(updatedTodo, syncStatus));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     /**
-     * GET /api/todos/syncing - Dobi vse naloge koje su trenutno u sinhronizaciji
+     * GET /api/todos/syncing - Dobi sve naloge koje su trenutno u sinhronizaciji
      */
     @GetMapping("/syncing")
     public ResponseEntity<List<TaskSyncStatus>> getTasksInProgress() {
         List<TaskSyncStatus> inProgressTasks = syncService.getTasksInProgress();
         return ResponseEntity.ok(inProgressTasks);
+    }
+
+    /**
+     * ✅ NOVA METODA: Batch sinhronizacija svih nalog
+     * POST /api/todos/sync-all - Sinhronizuj sve naloge koje još nisu sinhronizovane
+     */
+    @PostMapping("/sync-all")
+    public ResponseEntity<Map<String, Object>> syncAllTodos() {
+        List<Todo> allTodos = todoService.getAllTodos();
+
+        int successful = 0;
+        int failed = 0;
+
+        for (Todo todo : allTodos) {
+            TaskSyncStatus syncStatus = syncService.simulateSync(todo);
+
+            if (syncStatus.getStatus() == TaskSyncStatus.SyncStatus.COMPLETED) {
+                successful++;
+            } else if (syncStatus.getStatus() == TaskSyncStatus.SyncStatus.FAILED) {
+                failed++;
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("total", allTodos.size());
+        result.put("successful", successful);
+        result.put("failed", failed);
+        result.put("message", "Sinhronizacija završena");
+
+        return ResponseEntity.ok(result);
     }
 
     // ========== STATISTIKA ENDPOINT ==========
