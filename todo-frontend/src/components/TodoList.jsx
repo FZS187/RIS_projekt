@@ -1,176 +1,187 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import SyncStatusBadge from './SyncStatusBadge';
+import './TodoList.css';
 
-const TodoList = ({ todos, onToggle, onDelete, onEdit }) => {
-  return (
-    <div className="todo-list-container">
-      {todos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          onToggle={onToggle}
-          onDelete={onDelete}
-          onEdit={onEdit}
-        />
-      ))}
-    </div>
-  );
-};
+const API_URL = 'http://localhost:8080/api/todos';
 
-const TodoItem = ({ todo, onToggle, onDelete, onEdit }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newName, setNewName] = useState(todo.name);
-  const [newDueDate, setNewDueDate] = useState(todo.dueDate);
-  const [newReminderAt, setNewReminderAt] = useState(todo.reminderAt || "");
+const TodoList = () => {
+  const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newTodo, setNewTodo] = useState({ title: '', description: '', dueDate: '' });
+  const [editingId, setEditingId] = useState(null);
 
-  const handleEdit = () => {
-    if (isEditing) {
-      onEdit(todo.id, newName, newDueDate, newReminderAt);
+  // Dohvati sve naloge sa sync statusima
+  const fetchTodos = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(API_URL);
+      setTodos(response.data);
+      setError(null);
+    } catch (err) {
+      setError('Greška pri učitavanju nalog');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    setIsEditing(!isEditing);
   };
 
-  const handleExtendDueDate = () => {
-    const baseDate = newDueDate ? new Date(newDueDate) : new Date();
-    baseDate.setDate(baseDate.getDate() + 1);
-    const extended = baseDate.toISOString().slice(0, 10);
-    setNewDueDate(extended);
-    onEdit(todo.id, newName, extended, newReminderAt);
+  useEffect(() => {
+    fetchTodos();
+    
+    // Refresh sync statusa svake 3 sekunde
+    const interval = setInterval(() => {
+      fetchTodos();
+    }, 3000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Kreiraj novu nalog
+  const handleCreateTodo = async (e) => {
+    e.preventDefault();
+    if (!newTodo.title.trim()) return;
+
+    try {
+      const response = await axios.post(API_URL, newTodo);
+      setTodos([...todos, response.data]);
+      setNewTodo({ title: '', description: '', dueDate: '' });
+      
+      // Refresh nakon 2 sekunde da vidimo promenu statusa
+      setTimeout(fetchTodos, 2000);
+    } catch (err) {
+      setError('Greška pri kreiranju naloge');
+      console.error(err);
+    }
   };
 
-  const formattedDate = todo.dueDate
-    ? new Date(todo.dueDate).toLocaleDateString("sr-RS")
-    : "Nije definisan";
-  const isOverdue =
-    !todo.completed &&
-    todo.dueDate &&
-    new Date(todo.dueDate).setHours(0, 0, 0, 0) <
-      new Date().setHours(0, 0, 0, 0);
+  // Označi kao završeno/nezavršeno
+  const handleToggleComplete = async (todo) => {
+    try {
+      const updated = { ...todo, completed: !todo.completed };
+      await axios.put(`${API_URL}/${todo.id}`, updated);
+      fetchTodos();
+    } catch (err) {
+      setError('Greška pri ažuriranju naloge');
+      console.error(err);
+    }
+  };
 
-  // ✅ FIX: Proveri da reminderAt nije prazan string
-  const formattedReminder =
-    todo.reminderAt && todo.reminderAt.trim() !== ""
-      ? (() => {
-          const dt = new Date(todo.reminderAt);
-          // Proveri da li je datum validan
-          if (isNaN(dt.getTime())) return null;
+  // Ručno pokreni sinhronizaciju
+  const handleManualSync = async (todoId) => {
+    try {
+      await axios.post(`${API_URL}/${todoId}/sync`);
+      fetchTodos();
+    } catch (err) {
+      setError('Greška pri pokretanju sinhronizacije');
+      console.error(err);
+    }
+  };
 
-          const dateStr = dt.toLocaleDateString("sr-RS");
-          const timeStr = dt.toLocaleTimeString("sr-RS", {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
-          return `Opomnik: ${dateStr} u ${timeStr}`;
-        })()
-      : null;
+  // Izbriši nalog
+  const handleDelete = async (id) => {
+    if (window.confirm('Da li ste sigurni da želite izbrisati ovu nalog?')) {
+      try {
+        await axios.delete(`${API_URL}/${id}`);
+        setTodos(todos.filter(t => t.id !== id));
+      } catch (err) {
+        setError('Greška pri brisanju naloge');
+        console.error(err);
+      }
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">Učitavanje nalog...</div>;
+  }
 
   return (
-    <div
-      className={`todo-item ${todo.completed ? "completed" : ""}`}
-      style={{
-        color: "#000",
-        margin: "12px",
-        paddingBottom: "8px",
-        borderBottom: "1px solid #e2e8f0",
-      }}
-    >
-      <div className="todo-content">
-        {isEditing ? (
-          <>
-            <input
-              type="text"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              className="edit-input"
-            />
-            <input
-              type="date"
-              value={newDueDate}
-              onChange={(e) => setNewDueDate(e.target.value)}
-              className="edit-date-input"
-            />
-            <input
-              type="datetime-local"
-              value={newReminderAt}
-              onChange={(e) => setNewReminderAt(e.target.value)}
-              className="edit-date-input"
-            />
-          </>
+    <div className="todo-container">
+      <h1>📋 Moje Naloge</h1>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      {/* Forma za novu nalog */}
+      <form onSubmit={handleCreateTodo} className="todo-form">
+        <input
+          type="text"
+          placeholder="Naziv naloge..."
+          value={newTodo.title}
+          onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
+          className="todo-input"
+        />
+        <input
+          type="text"
+          placeholder="Opis (opciono)..."
+          value={newTodo.description}
+          onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
+          className="todo-input"
+        />
+        <input
+          type="date"
+          value={newTodo.dueDate}
+          onChange={(e) => setNewTodo({ ...newTodo, dueDate: e.target.value })}
+          className="todo-input"
+        />
+        <button type="submit" className="btn-add">Dodaj Nalog</button>
+      </form>
+
+      {/* Lista nalog */}
+      <div className="todo-list">
+        {todos.length === 0 ? (
+          <p className="no-todos">Nema nalog. Dodajte novu nalog!</p>
         ) : (
-          <>
-            <span
-              className="todo-name"
-              style={{
-                color: "#000",
-                fontWeight: 600,
-                fontSize: "16px",
-                lineHeight: "1.4",
-              }}
-            >
-              {todo.name}, Rok: {formattedDate}
-              {isOverdue && (
-                <span
-                  style={{
-                    marginLeft: "8px",
-                    color: "#e53e3e",
-                    fontWeight: 700,
-                    fontSize: "12px",
-                  }}
+          todos.map(todo => (
+            <div key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
+              <div className="todo-content">
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => handleToggleComplete(todo)}
+                  className="todo-checkbox"
+                />
+                <div className="todo-details">
+                  <h3 className="todo-title">{todo.title}</h3>
+                  {todo.description && (
+                    <p className="todo-description">{todo.description}</p>
+                  )}
+                  {todo.dueDate && (
+                    <span className="todo-date">📅 {todo.dueDate}</span>
+                  )}
+                </div>
+              </div>
+              
+              {/* Sync Status Badge */}
+              <div className="todo-actions">
+                <SyncStatusBadge syncStatus={todo.syncStatus} />
+                
+                {/* Dugme za ručnu sinhronizaciju */}
+                {todo.syncStatus?.status !== 'IN_PROGRESS' && (
+                  <button 
+                    onClick={() => handleManualSync(todo.id)}
+                    className="btn-sync"
+                    title="Ručna sinhronizacija"
+                  >
+                    🔄 Sync
+                  </button>
+                )}
+                
+                <button 
+                  onClick={() => handleDelete(todo.id)}
+                  className="btn-delete"
                 >
-                  Kasni
-                </span>
-              )}
-              {todo.completed && (
-                <span
-                  style={{
-                    marginLeft: "8px",
-                    color: "#38a169",
-                    fontWeight: 700,
-                    fontSize: "12px",
-                  }}
-                >
-                  Zavrseno
-                </span>
-              )}
-            </span>
-            {formattedReminder && (
-              <span
-                style={{
-                  color: "#e53e3e",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  display: "block",
-                  marginTop: "4px",
-                }}
-              >
-                {formattedReminder}
-              </span>
-            )}
-          </>
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))
         )}
       </div>
-
-      <div className="todo-actions">
-        <button
-          onClick={() => onToggle(todo.id)}
-          className="action-button edit-button"
-        >
-          {todo.completed ? "Vrati" : "Zavrseno"}
-        </button>
-        <button onClick={handleEdit} className="action-button edit-button">
-          {isEditing ? "Sacuvaj" : "Uredi"}
-        </button>
-        <button
-          onClick={handleExtendDueDate}
-          className="action-button edit-button"
-        >
-          Produzi rok +1 dan
-        </button>
-        <button
-          onClick={() => onDelete(todo.id)}
-          className="action-button delete-button"
-        >
-          Obrisi
-        </button>
+      
+      {/* Informacija o auto-refresh */}
+      <div className="info-box">
+        ℹ️ Status sinhronizacije se automatski ažurira svake 3 sekunde
       </div>
     </div>
   );

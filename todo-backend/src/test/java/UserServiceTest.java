@@ -81,7 +81,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(testUser);
 
         // ACT - Izvršitev
-        User result = userService.register(email, rawPassword);
+        User result = userService.register(email, rawPassword, "testuser");
 
         // ASSERT - Preverjanje
         assertNotNull(result, "Registriran uporabnik ne sme biti null");
@@ -130,7 +130,7 @@ class UserServiceTest {
         // ACT & ASSERT - Izvršitev in preverjanje
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.register(existingEmail, password),
+                () -> userService.register(existingEmail, password, "testuser"),
                 "Metoda bi morala vreči IllegalArgumentException"
         );
 
