@@ -2,15 +2,15 @@ package com.example.todobackend.controller;
 
 import com.example.todobackend.dto.TodoStatisticsDTO;
 import com.example.todobackend.dto.TodoWithSyncDTO;
-import com.example.todobackend.model.Category;
-import com.example.todobackend.model.Priority;
-import com.example.todobackend.model.TaskSyncStatus;
-import com.example.todobackend.model.Todo;
+import com.example.todobackend.model.*;
+import com.example.todobackend.repository.UserRepository;
 import com.example.todobackend.service.TodoService;
 import com.example.todobackend.service.TaskSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -19,11 +19,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * REST Controller za upravljanje nalog
- * Definira API endpointe za frontend
- *
- * TASK-2: Dodan /statistics endpoint za analizo produktivnosti
- * NOVA FUNKCIONALNOST: Dodana sinhronizacija nalog sa statusima
+ * ✅ FIXED: Sada sve metode koriste trenutno ulogovanog korisnika
  */
 @RestController
 @RequestMapping("/api/todos")
@@ -42,259 +38,252 @@ public class TodoController {
     @Autowired
     private TaskSyncService syncService;
 
-    // ========== OSNOVNI ENDPOINTI (sa sync statusom) ==========
+    @Autowired
+    private UserRepository userRepository;
 
     /**
-     * GET /api/todos - Dobi sve naloge SA sync statusima
+     * ✅ Helper metoda - Dohvati trenutno ulogovanog korisnika
+     */
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new RuntimeException("Korisnik nije prijavljen");
+        }
+
+        String email = auth.getName(); // Username je email
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Korisnik nije pronađen"));
+    }
+
+    /**
+     * ✅ GET /api/todos - Samo Todo-i trenutnog korisnika
      */
     @GetMapping
     public ResponseEntity<List<TodoWithSyncDTO>> getAllTodos() {
-        List<Todo> todos = todoService.getAllTodos();
+        try {
+            User currentUser = getCurrentUser();
+            List<Todo> todos = todoService.getAllTodos(currentUser);
 
-        List<TodoWithSyncDTO> todosWithSync = todos.stream()
-                .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
-                    return new TodoWithSyncDTO(todo, syncStatus);
-                })
-                .collect(Collectors.toList());
+            List<TodoWithSyncDTO> todosWithSync = todos.stream()
+                    .map(todo -> {
+                        TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
+                        return new TodoWithSyncDTO(todo, syncStatus);
+                    })
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(todosWithSync);
+            return ResponseEntity.ok(todosWithSync);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
-     * GET /api/todos/{id} - Dobi nalogo po ID-ju SA sync statusom
+     * ✅ GET /api/todos/{id}
      */
     @GetMapping("/{id}")
     public ResponseEntity<TodoWithSyncDTO> getTodoById(@PathVariable Long id) {
-        return todoService.getTodoById(id)
-                .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
-                    return ResponseEntity.ok(new TodoWithSyncDTO(todo, syncStatus));
-                })
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            User currentUser = getCurrentUser();
+            return todoService.getTodoById(id, currentUser)
+                    .map(todo -> {
+                        TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
+                        return ResponseEntity.ok(new TodoWithSyncDTO(todo, syncStatus));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
-     * POST /api/todos - Ustvari novo nalogo in avtomatsko začni sinhronizacijo
+     * ✅ POST /api/todos - Kreiraj Todo za trenutnog korisnika
+     * AUTOMATSKI SINHRONIZUJE SA GOOGLE CALENDAR-OM
      */
     @PostMapping
     public ResponseEntity<TodoWithSyncDTO> createTodo(@RequestBody Todo todo) {
-        Todo savedTodo = todoService.createTodo(todo);
+        try {
+            User currentUser = getCurrentUser();
+            Todo savedTodo = todoService.createTodo(todo, currentUser);
 
-        // ✅ AUTOMATSKI POSTAVI STATUS NA "V TEKU"
-        TaskSyncStatus syncStatus = syncService.startSync(savedTodo);
+            // ✅ PRAVA GOOGLE CALENDAR SINHRONIZACIJA
+            TaskSyncStatus syncStatus = syncService.startSync(savedTodo);
 
-        // Simuliraj sinhronizaciju u pozadini (asinhrono)
-        new Thread(() -> {
-            syncService.simulateSync(savedTodo);
-        }).start();
+            new Thread(() -> {
+                syncService.syncWithGoogleCalendar(savedTodo);
+            }).start();
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new TodoWithSyncDTO(savedTodo, syncStatus));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new TodoWithSyncDTO(savedTodo, syncStatus));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
-     * PUT /api/todos/{id} - Posodobi obstoječo nalogo i pokreni re-sinhronizaciju
+     * ✅ PUT /api/todos/{id} - Ažuriraj samo svoj Todo
+     * AUTOMATSKI RE-SINHRONIZUJE SA GOOGLE CALENDAR-OM
      */
     @PutMapping("/{id}")
     public ResponseEntity<TodoWithSyncDTO> updateTodo(@PathVariable Long id, @RequestBody Todo todoDetails) {
         try {
-            Todo updatedTodo = todoService.updateTodo(id, todoDetails);
+            User currentUser = getCurrentUser();
+            Todo updatedTodo = todoService.updateTodo(id, todoDetails, currentUser);
 
-            // ✅ POKRENI RE-SINHRONIZACIJU NAKON IZMENE
+            // ✅ RE-SINHRONIZACIJA SA GOOGLE CALENDAR-OM
             TaskSyncStatus syncStatus = syncService.startSync(updatedTodo);
 
             new Thread(() -> {
-                syncService.simulateSync(updatedTodo);
+                syncService.syncWithGoogleCalendar(updatedTodo);
             }).start();
 
             return ResponseEntity.ok(new TodoWithSyncDTO(updatedTodo, syncStatus));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
     /**
-     * DELETE /api/todos/{id} - Izbriši nalogo
+     * ✅ DELETE /api/todos/{id} - Obriši samo svoj Todo
+     * AUTOMATSKI BRIŠE IZ GOOGLE CALENDAR-A
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTodo(@PathVariable Long id) {
-        todoService.deleteTodo(id);
-        return ResponseEntity.noContent().build();
+        try {
+            User currentUser = getCurrentUser();
+
+            // Prvo dohvati Todo da bi obrisao iz Google Calendar-a
+            Todo todo = todoService.getTodoById(id, currentUser)
+                    .orElseThrow(() -> new RuntimeException("Todo nije pronađen"));
+
+            // ✅ OBRIŠI IZ GOOGLE CALENDAR-A
+            syncService.deleteGoogleCalendarEvent(todo);
+
+            // Obriši iz baze
+            todoService.deleteTodo(id, currentUser);
+
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     /**
-     * PATCH /api/todos/{id}/toggle - Preklopi status dokončanosti
+     * ✅ PATCH /api/todos/{id}/toggle
      */
     @PatchMapping("/{id}/toggle")
     public ResponseEntity<TodoWithSyncDTO> toggleComplete(@PathVariable Long id) {
         try {
-            Todo toggledTodo = todoService.toggleComplete(id);
+            User currentUser = getCurrentUser();
+            Todo toggledTodo = todoService.toggleComplete(id, currentUser);
 
-            // Pokreni sinhronizaciju nakon promene statusa
+            // Sinhronizuj promenu statusa
             TaskSyncStatus syncStatus = syncService.startSync(toggledTodo);
 
             new Thread(() -> {
-                syncService.simulateSync(toggledTodo);
+                syncService.syncWithGoogleCalendar(toggledTodo);
             }).start();
 
             return ResponseEntity.ok(new TodoWithSyncDTO(toggledTodo, syncStatus));
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
 
-    // ========== SEARCH I FILTER ENDPOINTI ==========
-
     /**
-     * GET /api/todos/search?keyword=xyz - Išči naloge po imenu
+     * ✅ GET /api/todos/search
      */
     @GetMapping("/search")
     public ResponseEntity<List<TodoWithSyncDTO>> searchTodos(@RequestParam String keyword) {
-        List<Todo> todos = todoService.searchByName(keyword);
+        try {
+            User currentUser = getCurrentUser();
+            List<Todo> todos = todoService.searchByName(keyword, currentUser);
 
-        List<TodoWithSyncDTO> todosWithSync = todos.stream()
-                .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
-                    return new TodoWithSyncDTO(todo, syncStatus);
-                })
-                .collect(Collectors.toList());
+            List<TodoWithSyncDTO> todosWithSync = todos.stream()
+                    .map(todo -> {
+                        TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
+                        return new TodoWithSyncDTO(todo, syncStatus);
+                    })
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(todosWithSync);
+            return ResponseEntity.ok(todosWithSync);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
-     * GET /api/todos/filter?completed=true - Filtriraj po statusu
+     * ✅ GET /api/todos/filter
      */
     @GetMapping("/filter")
     public ResponseEntity<List<TodoWithSyncDTO>> filterTodos(@RequestParam boolean completed) {
-        List<Todo> todos = todoService.filterByCompleted(completed);
+        try {
+            User currentUser = getCurrentUser();
+            List<Todo> todos = todoService.filterByCompleted(completed, currentUser);
 
-        List<TodoWithSyncDTO> todosWithSync = todos.stream()
-                .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
-                    return new TodoWithSyncDTO(todo, syncStatus);
-                })
-                .collect(Collectors.toList());
+            List<TodoWithSyncDTO> todosWithSync = todos.stream()
+                    .map(todo -> {
+                        TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
+                        return new TodoWithSyncDTO(todo, syncStatus);
+                    })
+                    .collect(Collectors.toList());
 
-        return ResponseEntity.ok(todosWithSync);
-    }
-
-    // ========== SYNC STATUS ENDPOINTI ==========
-
-    /**
-     * GET /api/todos/{id}/sync-status - Dobi samo sync status za določeno nalogo
-     */
-    @GetMapping("/{id}/sync-status")
-    public ResponseEntity<TaskSyncStatus> getSyncStatus(@PathVariable Long id) {
-        return syncService.getSyncStatus(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            return ResponseEntity.ok(todosWithSync);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 
     /**
-     * ✅ TASK 3 & 4: POST /api/todos/{id}/sync - Ručno pokreni sinhronizaciju i vrati konačni status
-     * Ovaj endpoint SINHRONIZUJE Todo sa Google Calendar-om i vraća konačni status
+     * ✅ POST /api/todos/{id}/sync - Ručno pokreni PRAVU sinhronizaciju
      */
     @PostMapping("/{id}/sync")
     public ResponseEntity<TodoWithSyncDTO> triggerSync(@PathVariable Long id) {
-        return todoService.getTodoById(id)
-                .map(todo -> {
-                    // Pokreni sinhronizaciju SADA (ne asinhrono)
-                    TaskSyncStatus syncStatus = syncService.simulateSync(todo);
+        try {
+            User currentUser = getCurrentUser();
 
-                    // Refresh todo iz baze da dobijemo ažurirani syncStatus
-                    Todo updatedTodo = todoService.getTodoById(id).orElse(todo);
+            return todoService.getTodoById(id, currentUser)
+                    .map(todo -> {
+                        // ✅ PRAVA GOOGLE CALENDAR SINHRONIZACIJA
+                        TaskSyncStatus syncStatus = syncService.syncWithGoogleCalendar(todo);
 
-                    // ✅ TASK 3: Vraća konačni status (USPESNO ili NAPAKA)
-                    return ResponseEntity.ok(new TodoWithSyncDTO(updatedTodo, syncStatus));
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
+                        // Refresh todo iz baze
+                        Todo updatedTodo = todoService.getTodoById(id, currentUser).orElse(todo);
 
-    /**
-     * GET /api/todos/syncing - Dobi sve naloge koje su trenutno u sinhronizaciji
-     */
-    @GetMapping("/syncing")
-    public ResponseEntity<List<TaskSyncStatus>> getTasksInProgress() {
-        List<TaskSyncStatus> inProgressTasks = syncService.getTasksInProgress();
-        return ResponseEntity.ok(inProgressTasks);
-    }
-
-    /**
-     * ✅ NOVA METODA: Batch sinhronizacija svih nalog
-     * POST /api/todos/sync-all - Sinhronizuj sve naloge koje još nisu sinhronizovane
-     */
-    @PostMapping("/sync-all")
-    public ResponseEntity<Map<String, Object>> syncAllTodos() {
-        List<Todo> allTodos = todoService.getAllTodos();
-
-        int successful = 0;
-        int failed = 0;
-
-        for (Todo todo : allTodos) {
-            TaskSyncStatus syncStatus = syncService.simulateSync(todo);
-
-            if (syncStatus.getStatus() == TaskSyncStatus.SyncStatus.COMPLETED) {
-                successful++;
-            } else if (syncStatus.getStatus() == TaskSyncStatus.SyncStatus.FAILED) {
-                failed++;
-            }
+                        return ResponseEntity.ok(new TodoWithSyncDTO(updatedTodo, syncStatus));
+                    })
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("total", allTodos.size());
-        result.put("successful", successful);
-        result.put("failed", failed);
-        result.put("message", "Sinhronizacija završena");
-
-        return ResponseEntity.ok(result);
     }
 
-    // ========== STATISTIKA ENDPOINT ==========
-
     /**
-     * TASK-2: GET /api/todos/statistics - Dobi statistiko nalog
-     *
-     * Vrne celotno analizo produktivnosti:
-     * - Skupno število nalog
-     * - Dokončane/nedokončane naloge
-     * - Odstotek dokončanosti
-     * - Razdelitev po kategorijah
-     * - Razdelitev po prioritetah
-     * - Pretečene naloge
-     *
-     * Primer klica: GET http://localhost:8080/api/todos/statistics
-     *
-     * @return TodoStatisticsDTO z vso statistiko
+     * ✅ GET /api/todos/statistics - Statistika za trenutnog korisnika
      */
     @GetMapping("/statistics")
     public ResponseEntity<TodoStatisticsDTO> getStatistics() {
         try {
-            TodoStatisticsDTO statistics = todoService.getStatistics();
+            User currentUser = getCurrentUser();
+            TodoStatisticsDTO statistics = todoService.getStatistics(currentUser);
             return ResponseEntity.ok(statistics);
         } catch (Exception e) {
-            // Log napake (v produkciji uporabi logger)
             System.err.println("❌ Napaka pri pridobivanju statistike: " + e.getMessage());
             e.printStackTrace();
-
-            // Vrni prazno statistiko v primeru napake
-            TodoStatisticsDTO emptyStats = new TodoStatisticsDTO();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(emptyStats);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new TodoStatisticsDTO());
         }
     }
 
-    // ========== CATEGORY I PRIORITY ENDPOINTI ==========
-
     /**
-     * GET /api/todos/category/{category} - Dobi naloge po kategoriji
-     * Primer: GET /api/todos/category/WORK
+     * ✅ GET /api/todos/category/{category}
      */
     @GetMapping("/category/{category}")
     public ResponseEntity<List<TodoWithSyncDTO>> getTodosByCategory(@PathVariable String category) {
         try {
+            User currentUser = getCurrentUser();
             Category cat = Category.valueOf(category.toUpperCase());
-            List<Todo> todos = todoService.getTodosByCategory(cat);
+            List<Todo> todos = todoService.getTodosByCategory(cat, currentUser);
 
             List<TodoWithSyncDTO> todosWithSync = todos.stream()
                     .map(todo -> {
@@ -306,18 +295,20 @@ public class TodoController {
             return ResponseEntity.ok(todosWithSync);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     /**
-     * GET /api/todos/priority/{priority} - Dobi naloge po prioriteti
-     * Primer: GET /api/todos/priority/HIGH
+     * ✅ GET /api/todos/priority/{priority}
      */
     @GetMapping("/priority/{priority}")
     public ResponseEntity<List<TodoWithSyncDTO>> getTodosByPriority(@PathVariable String priority) {
         try {
+            User currentUser = getCurrentUser();
             Priority pri = Priority.valueOf(priority.toUpperCase());
-            List<Todo> todos = todoService.getTodosByPriority(pri);
+            List<Todo> todos = todoService.getTodosByPriority(pri, currentUser);
 
             List<TodoWithSyncDTO> todosWithSync = todos.stream()
                     .map(todo -> {
@@ -329,29 +320,11 @@ public class TodoController {
             return ResponseEntity.ok(todosWithSync);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
-    /**
-     * GET /api/todos/high-priority - Dobi visoko prioritetne nedokončane naloge
-     */
-    @GetMapping("/high-priority")
-    public ResponseEntity<List<TodoWithSyncDTO>> getHighPriorityTasks() {
-        List<Todo> todos = todoService.getHighPriorityIncompleteTasks();
-
-        List<TodoWithSyncDTO> todosWithSync = todos.stream()
-                .map(todo -> {
-                    TaskSyncStatus syncStatus = syncService.getOrCreateSyncStatus(todo);
-                    return new TodoWithSyncDTO(todo, syncStatus);
-                })
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(todosWithSync);
-    }
-
-    /**
-     * GET /api/todos/categories - Dobi seznam kategorij
-     */
     @GetMapping("/categories")
     public ResponseEntity<List<String>> getCategories() {
         List<String> categories = java.util.Arrays.stream(Category.values())
@@ -360,9 +333,6 @@ public class TodoController {
         return ResponseEntity.ok(categories);
     }
 
-    /**
-     * GET /api/todos/priorities - Dobi seznam prioritet
-     */
     @GetMapping("/priorities")
     public ResponseEntity<List<String>> getPriorities() {
         List<String> priorities = java.util.Arrays.stream(Priority.values())

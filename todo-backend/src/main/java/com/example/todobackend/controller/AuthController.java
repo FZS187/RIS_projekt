@@ -17,6 +17,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(
+        origins = {"http://localhost:5173", "http://127.0.0.1:5173"},
+        allowCredentials = "true"
+)
 public class AuthController {
 
     private final UserService userService;
@@ -27,13 +31,20 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    /**
+     * ✅ REGISTRACIJA - Automatski uloguje korisnika nakon registracije
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         try {
-            // Registruj korisnika
+            System.out.println("📝 Registracija započeta za: " + request.email());
+
+            // ✅ Registruj korisnika
             User user = userService.register(request.name(), request.email(), request.password());
 
-            // AUTOMATSKI ULOGUJ nakon registracije
+            System.out.println("✅ Korisnik registrovan: " + user.getEmail());
+
+            // ✅ AUTOMATSKI ULOGUJ nakon registracije
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password())
             );
@@ -47,22 +58,34 @@ public class AuthController {
             HttpSession session = httpRequest.getSession(true);
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
 
+            System.out.println("✅ Korisnik automatski ulogovan: " + user.getEmail());
+
             return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
                     "name", user.getName() != null ? user.getName() : user.getEmail(),
-                    "message", "Registered and logged in"
+                    "message", "Registered and logged in successfully"
             ));
+
         } catch (IllegalArgumentException e) {
+            System.err.println("❌ Registracija neuspešna: " + e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+
         } catch (Exception e) {
+            System.err.println("❌ Neočekivana greška: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "Registration failed: " + e.getMessage()));
         }
     }
 
+    /**
+     * ✅ LOGIN
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         try {
+            System.out.println("🔐 Login pokušaj za: " + request.email());
+
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password())
             );
@@ -78,17 +101,24 @@ public class AuthController {
             User user = userService.findByEmail(request.email())
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
+            System.out.println("✅ Login uspešan za: " + user.getEmail());
+
             return ResponseEntity.ok(Map.of(
                     "id", user.getId(),
                     "email", user.getEmail(),
                     "name", user.getName() != null ? user.getName() : user.getEmail(),
-                    "message", "Logged in"
+                    "message", "Logged in successfully"
             ));
+
         } catch (Exception e) {
+            System.err.println("❌ Login neuspešan: " + e.getMessage());
             return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials"));
         }
     }
 
+    /**
+     * ✅ LOGOUT
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest httpRequest) {
         HttpSession session = httpRequest.getSession(false);
@@ -96,9 +126,14 @@ public class AuthController {
             session.invalidate();
         }
         SecurityContextHolder.clearContext();
+
+        System.out.println("🚪 Korisnik se odjavio");
+
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
-    public record AuthRequest(String name, String email, String password) {
-    }
+    /**
+     * ✅ Request DTO
+     */
+    public record AuthRequest(String name, String email, String password) {}
 }

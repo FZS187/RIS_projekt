@@ -1,0 +1,258 @@
+package com.example.todobackend.service;
+
+import com.example.todobackend.dto.TodoStatisticsDTO;
+import com.example.todobackend.model.Category;
+import com.example.todobackend.model.Priority;
+import com.example.todobackend.model.Todo;
+import com.example.todobackend.model.User;
+import com.example.todobackend.repository.TodoRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDate;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class TodoServiceTest {
+
+    @Mock
+    private TodoRepository todoRepository;
+
+    @InjectMocks
+    private TodoService todoService;
+
+    private User testUser;
+    private Todo testTodo;
+
+    @BeforeEach
+    void setUp() {
+        // ✅ Kreiraj test korisnika
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("test@test.com");
+        testUser.setName("Test User");
+        testUser.setPasswordHash("hashedPassword");
+
+        // ✅ Kreiraj test Todo
+        testTodo = new Todo();
+        testTodo.setId(1L);
+        testTodo.setName("Test Task");
+        testTodo.setCategory(Category.WORK);
+        testTodo.setPriority(Priority.HIGH);
+        testTodo.setCompleted(false);
+        testTodo.setUser(testUser); // ✅ Postavi korisnika
+    }
+
+    @Test
+    void testGetStatistics_WithTodos() {
+        // ✅ UPDATED: Dodaj User parametar svuda
+        when(todoRepository.countByUser(testUser)).thenReturn(10L);
+        when(todoRepository.countByUserAndCompleted(testUser, true)).thenReturn(6L);
+        when(todoRepository.countByUserAndCompleted(testUser, false)).thenReturn(4L);
+        when(todoRepository.countByCategory(testUser)).thenReturn(Arrays.asList(
+                new Object[]{Category.WORK, 5L},
+                new Object[]{Category.PERSONAL, 3L}
+        ));
+        when(todoRepository.countByPriority(testUser)).thenReturn(Arrays.asList(
+                new Object[]{Priority.HIGH, 4L},
+                new Object[]{Priority.MEDIUM, 6L}
+        ));
+        when(todoRepository.countOverdueTasks(eq(testUser), any(LocalDate.class), eq(false))).thenReturn(2L);
+        when(todoRepository.countByUserAndDueDateIsNull(testUser)).thenReturn(3L);
+
+        // ✅ UPDATED: Prosleđivanje User parametra
+        TodoStatisticsDTO stats = todoService.getStatistics(testUser);
+
+        assertNotNull(stats);
+        assertEquals(10L, stats.getTotalTasks());
+        assertEquals(6L, stats.getCompletedTasks());
+        assertEquals(4L, stats.getPendingTasks());
+        assertEquals(60.0, stats.getCompletionPercentage());
+        assertEquals(2L, stats.getOverdueTasks());
+        assertEquals(3L, stats.getTasksWithoutDueDate());
+    }
+
+    @Test
+    void testGetStatistics_EmptyTodoList() {
+        // ✅ UPDATED: Dodaj User parametar
+        when(todoRepository.countByUser(testUser)).thenReturn(0L);
+        when(todoRepository.countByUserAndCompleted(testUser, true)).thenReturn(0L);
+        when(todoRepository.countByUserAndCompleted(testUser, false)).thenReturn(0L);
+        when(todoRepository.countByCategory(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countByPriority(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countOverdueTasks(eq(testUser), any(LocalDate.class), eq(false))).thenReturn(0L);
+        when(todoRepository.countByUserAndDueDateIsNull(testUser)).thenReturn(0L);
+
+        TodoStatisticsDTO stats = todoService.getStatistics(testUser);
+
+        assertNotNull(stats);
+        assertEquals(0L, stats.getTotalTasks());
+        assertEquals(0L, stats.getCompletedTasks());
+        assertEquals(0L, stats.getPendingTasks());
+        assertEquals(0.0, stats.getCompletionPercentage());
+    }
+
+    @Test
+    void testGetStatistics_AllCompleted() {
+        // ✅ UPDATED: Dodaj User parametar
+        when(todoRepository.countByUser(testUser)).thenReturn(5L);
+        when(todoRepository.countByUserAndCompleted(testUser, true)).thenReturn(5L);
+        when(todoRepository.countByUserAndCompleted(testUser, false)).thenReturn(0L);
+        when(todoRepository.countByCategory(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countByPriority(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countOverdueTasks(eq(testUser), any(LocalDate.class), eq(false))).thenReturn(0L);
+        when(todoRepository.countByUserAndDueDateIsNull(testUser)).thenReturn(0L);
+
+        TodoStatisticsDTO stats = todoService.getStatistics(testUser);
+
+        assertEquals(5L, stats.getTotalTasks());
+        assertEquals(5L, stats.getCompletedTasks());
+        assertEquals(100.0, stats.getCompletionPercentage());
+    }
+
+    @Test
+    void testGetStatistics_NoneCompleted() {
+        // ✅ UPDATED: Dodaj User parametar
+        when(todoRepository.countByUser(testUser)).thenReturn(5L);
+        when(todoRepository.countByUserAndCompleted(testUser, true)).thenReturn(0L);
+        when(todoRepository.countByUserAndCompleted(testUser, false)).thenReturn(5L);
+        when(todoRepository.countByCategory(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countByPriority(testUser)).thenReturn(Collections.emptyList());
+        when(todoRepository.countOverdueTasks(eq(testUser), any(LocalDate.class), eq(false))).thenReturn(5L);
+        when(todoRepository.countByUserAndDueDateIsNull(testUser)).thenReturn(0L);
+
+        TodoStatisticsDTO stats = todoService.getStatistics(testUser);
+
+        assertEquals(5L, stats.getTotalTasks());
+        assertEquals(0L, stats.getCompletedTasks());
+        assertEquals(0.0, stats.getCompletionPercentage());
+        assertEquals(5L, stats.getOverdueTasks());
+    }
+
+    @Test
+    void testCreateTodo() {
+        // ✅ UPDATED: Test kreiranje Todo-a sa User-om
+        Todo newTodo = new Todo("New Task");
+        newTodo.setCategory(Category.PERSONAL);
+        newTodo.setPriority(Priority.MEDIUM);
+
+        when(todoRepository.save(any(Todo.class))).thenReturn(testTodo);
+
+        Todo created = todoService.createTodo(newTodo, testUser);
+
+        assertNotNull(created);
+        assertEquals(testUser, created.getUser());
+        verify(todoRepository, times(1)).save(any(Todo.class));
+    }
+
+    @Test
+    void testGetAllTodos() {
+        // ✅ UPDATED: Test dohvatanje svih Todo-a za User-a
+        List<Todo> todos = Arrays.asList(testTodo);
+        when(todoRepository.findByUser(testUser)).thenReturn(todos);
+
+        List<Todo> result = todoService.getAllTodos(testUser);
+
+        assertEquals(1, result.size());
+        assertEquals(testTodo, result.get(0));
+        verify(todoRepository, times(1)).findByUser(testUser);
+    }
+
+    @Test
+    void testToggleComplete() {
+        // ✅ UPDATED: Test toggle complete sa User-om
+        when(todoRepository.findByIdAndUser(1L, testUser)).thenReturn(Optional.of(testTodo));
+        when(todoRepository.save(any(Todo.class))).thenReturn(testTodo);
+
+        Todo toggled = todoService.toggleComplete(1L, testUser);
+
+        assertTrue(toggled.isCompleted());
+        verify(todoRepository, times(1)).save(testTodo);
+    }
+
+    @Test
+    void testDeleteTodo() {
+        // ✅ UPDATED: Test brisanje Todo-a sa User-om
+        when(todoRepository.findByIdAndUser(1L, testUser)).thenReturn(Optional.of(testTodo));
+        doNothing().when(todoRepository).delete(testTodo);
+
+        assertDoesNotThrow(() -> todoService.deleteTodo(1L, testUser));
+        verify(todoRepository, times(1)).delete(testTodo);
+    }
+
+    @Test
+    void testUpdateTodo() {
+        // ✅ UPDATED: Test ažuriranje Todo-a sa User-om
+        Todo updatedDetails = new Todo();
+        updatedDetails.setName("Updated Task");
+        updatedDetails.setDescription("Updated Description");
+        updatedDetails.setCompleted(true);
+
+        when(todoRepository.findByIdAndUser(1L, testUser)).thenReturn(Optional.of(testTodo));
+        when(todoRepository.save(any(Todo.class))).thenReturn(testTodo);
+
+        Todo updated = todoService.updateTodo(1L, updatedDetails, testUser);
+
+        assertEquals("Updated Task", updated.getName());
+        verify(todoRepository, times(1)).save(testTodo);
+    }
+
+    @Test
+    void testSearchByName() {
+        // ✅ UPDATED: Test pretrage sa User-om
+        List<Todo> todos = Arrays.asList(testTodo);
+        when(todoRepository.findByUserAndNameContainingIgnoreCase(testUser, "Test")).thenReturn(todos);
+
+        List<Todo> result = todoService.searchByName("Test", testUser);
+
+        assertEquals(1, result.size());
+        verify(todoRepository, times(1)).findByUserAndNameContainingIgnoreCase(testUser, "Test");
+    }
+
+    @Test
+    void testFilterByCompleted() {
+        // ✅ UPDATED: Test filtriranja sa User-om
+        List<Todo> todos = Arrays.asList(testTodo);
+        when(todoRepository.findByUserAndCompleted(testUser, false)).thenReturn(todos);
+
+        List<Todo> result = todoService.filterByCompleted(false, testUser);
+
+        assertEquals(1, result.size());
+        assertFalse(result.get(0).isCompleted());
+        verify(todoRepository, times(1)).findByUserAndCompleted(testUser, false);
+    }
+
+    @Test
+    void testGetTodosByCategory() {
+        // ✅ UPDATED: Test po kategoriji sa User-om
+        List<Todo> todos = Arrays.asList(testTodo);
+        when(todoRepository.findByUserAndCategory(testUser, Category.WORK)).thenReturn(todos);
+
+        List<Todo> result = todoService.getTodosByCategory(Category.WORK, testUser);
+
+        assertEquals(1, result.size());
+        assertEquals(Category.WORK, result.get(0).getCategory());
+        verify(todoRepository, times(1)).findByUserAndCategory(testUser, Category.WORK);
+    }
+
+    @Test
+    void testGetTodosByPriority() {
+        // ✅ UPDATED: Test po prioritetu sa User-om
+        List<Todo> todos = Arrays.asList(testTodo);
+        when(todoRepository.findByUserAndPriority(testUser, Priority.HIGH)).thenReturn(todos);
+
+        List<Todo> result = todoService.getTodosByPriority(Priority.HIGH, testUser);
+
+        assertEquals(1, result.size());
+        assertEquals(Priority.HIGH, result.get(0).getPriority());
+        verify(todoRepository, times(1)).findByUserAndPriority(testUser, Priority.HIGH);
+    }
+}

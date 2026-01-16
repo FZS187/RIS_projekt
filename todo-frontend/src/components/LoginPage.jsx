@@ -12,7 +12,7 @@ const LoginPage = ({ onLogin, onSwitchToRegister }) => {
       setError("Molimo unesite email i lozinku");
       return;
     }
-  
+
     // ADMIN pass and email
     const isAdmin = email === "admin@admin.com" && password === "admin123";
     

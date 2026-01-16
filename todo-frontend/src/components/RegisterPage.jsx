@@ -8,6 +8,7 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
     confirmPassword: "",
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field, value) => {
     setFormData({
@@ -18,31 +19,36 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
 
   const handleSubmit = async () => {
     setError("");
+    setLoading(true);
 
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
+    // ✅ Validacija
+    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError("Molimo popunite sva polja");
+      setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Lozinke se ne podudaraju");
+      setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
       setError("Lozinka mora imati najmanje 6 karaktera");
+      setLoading(false);
       return;
     }
 
     try {
+      console.log("📝 Šaljem registraciju za:", formData.email);
+
       const response = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         credentials: "include",
         body: JSON.stringify({
           name: formData.name,
@@ -51,17 +57,33 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
         }),
       });
 
+      console.log("📥 Response status:", response.status);
+
       if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}));
-        const message = errorBody.message || "Greska pri registraciji";
-        setError(message);
+        const errorBody = await response.json().catch(() => ({ error: "Unknown error" }));
+        console.error("❌ Greška:", errorBody);
+        setError(errorBody.error || errorBody.message || "Greška pri registraciji");
+        setLoading(false);
         return;
       }
 
       const data = await response.json();
-      onRegister(data);
+      console.log("✅ Registracija uspešna:", data);
+
+      // ✅ Prosleđujemo podatke roditeljskoj komponenti
+      onRegister({
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        isAdmin: false
+      });
+
+      setLoading(false);
+      
     } catch (err) {
-      setError("Greska pri registraciji");
+      console.error("❌ Network error:", err);
+      setError("Greška pri povezivanju sa serverom. Proveri da li backend radi.");
+      setLoading(false);
     }
   };
 
@@ -116,7 +138,7 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
             Kreirajte nalog
           </h1>
           <p style={{ color: "#cbd5e0", fontSize: "14px" }}>
-            Pridruzite se i organizujte svoje zadatke
+            Pridružite se i organizujte svoje zadatke
           </p>
         </div>
 
@@ -131,7 +153,7 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
               fontSize: "14px",
             }}
           >
-            {error}
+            ⚠️ {error}
           </div>
         )}
 
@@ -152,7 +174,8 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
               type="text"
               value={formData.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Marko Markovic"
+              placeholder="Marko Marković"
+              disabled={loading}
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -163,8 +186,9 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
                 boxSizing: "border-box",
                 background: "#1f1f39",
                 color: "#f7fafc",
+                opacity: loading ? 0.6 : 1,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#e94560")}
+              onFocus={(e) => !loading && (e.target.style.borderColor = "#e94560")}
               onBlur={(e) => (e.target.style.borderColor = "#3c3c6e")}
             />
           </div>
@@ -186,6 +210,7 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
               placeholder="vas.email@example.com"
+              disabled={loading}
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -196,8 +221,9 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
                 boxSizing: "border-box",
                 background: "#1f1f39",
                 color: "#f7fafc",
+                opacity: loading ? 0.6 : 1,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#e94560")}
+              onFocus={(e) => !loading && (e.target.style.borderColor = "#e94560")}
               onBlur={(e) => (e.target.style.borderColor = "#3c3c6e")}
             />
           </div>
@@ -219,6 +245,7 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
               value={formData.password}
               onChange={(e) => handleChange("password", e.target.value)}
               placeholder="********"
+              disabled={loading}
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -229,8 +256,9 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
                 boxSizing: "border-box",
                 background: "#1f1f39",
                 color: "#f7fafc",
+                opacity: loading ? 0.6 : 1,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#e94560")}
+              onFocus={(e) => !loading && (e.target.style.borderColor = "#e94560")}
               onBlur={(e) => (e.target.style.borderColor = "#3c3c6e")}
             />
           </div>
@@ -251,8 +279,9 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
               type="password"
               value={formData.confirmPassword}
               onChange={(e) => handleChange("confirmPassword", e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSubmit()}
+              onKeyPress={(e) => e.key === "Enter" && !loading && handleSubmit()}
               placeholder="********"
+              disabled={loading}
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -263,37 +292,48 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
                 boxSizing: "border-box",
                 background: "#1f1f39",
                 color: "#f7fafc",
+                opacity: loading ? 0.6 : 1,
               }}
-              onFocus={(e) => (e.target.style.borderColor = "#e94560")}
+              onFocus={(e) => !loading && (e.target.style.borderColor = "#e94560")}
               onBlur={(e) => (e.target.style.borderColor = "#3c3c6e")}
             />
           </div>
 
           <button
             onClick={handleSubmit}
+            disabled={loading}
             style={{
               width: "100%",
               padding: "14px",
-              background: "linear-gradient(135deg, #e94560 0%, #ff6b6b 100%)",
+              background: loading 
+                ? "#6c757d" 
+                : "linear-gradient(135deg, #e94560 0%, #ff6b6b 100%)",
               color: "#f7fafc",
               border: "none",
               borderRadius: "8px",
               fontSize: "16px",
               fontWeight: "600",
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               transition: "transform 0.2s, box-shadow 0.2s",
-              boxShadow: "0 4px 12px rgba(233, 69, 96, 0.35)",
+              boxShadow: loading 
+                ? "none" 
+                : "0 4px 12px rgba(233, 69, 96, 0.35)",
+              opacity: loading ? 0.7 : 1,
             }}
             onMouseEnter={(e) => {
-              e.target.style.transform = "translateY(-2px)";
-              e.target.style.boxShadow = "0 6px 20px rgba(233, 69, 96, 0.55)";
+              if (!loading) {
+                e.target.style.transform = "translateY(-2px)";
+                e.target.style.boxShadow = "0 6px 20px rgba(233, 69, 96, 0.55)";
+              }
             }}
             onMouseLeave={(e) => {
-              e.target.style.transform = "translateY(0)";
-              e.target.style.boxShadow = "0 4px 12px rgba(233, 69, 96, 0.35)";
+              if (!loading) {
+                e.target.style.transform = "translateY(0)";
+                e.target.style.boxShadow = "0 4px 12px rgba(233, 69, 96, 0.35)";
+              }
             }}
           >
-            Registruj se
+            {loading ? "Registracija u toku..." : "Registruj se"}
           </button>
         </div>
 
@@ -305,15 +345,16 @@ const RegisterPage = ({ onRegister, onSwitchToLogin }) => {
             color: "#cbd5e0",
           }}
         >
-          Vec imate nalog?{" "}
+          Već imate nalog?{" "}
           <button
             onClick={onSwitchToLogin}
+            disabled={loading}
             style={{
               background: "none",
               border: "none",
-              color: "#e94560",
+              color: loading ? "#6c757d" : "#e94560",
               fontWeight: "600",
-              cursor: "pointer",
+              cursor: loading ? "not-allowed" : "pointer",
               textDecoration: "underline",
               padding: 0,
             }}

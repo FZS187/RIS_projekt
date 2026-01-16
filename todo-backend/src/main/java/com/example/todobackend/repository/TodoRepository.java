@@ -3,122 +3,75 @@ package com.example.todobackend.repository;
 import com.example.todobackend.model.Category;
 import com.example.todobackend.model.Priority;
 import com.example.todobackend.model.Todo;
+import com.example.todobackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Repository za Todo entiteto
- * Vsebuje metode za delo z bazo podatkov
- *
- * TASK-2: Dodane metode za statistiko nalog
+ * ✅ UPDATED: Dodati metodi za filtriranje po korisniku
  */
 @Repository
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
-    // ========== OBSTOJECE METODE (če že obstajajo) ==========
+    // ✅ NOVO: Svi Todo-i za određenog korisnika
+    List<Todo> findByUser(User user);
 
-    /**
-     * Najdi vse naloge glede na status dokončanosti
-     */
-    List<Todo> findByCompleted(boolean completed);
+    // ✅ NOVO: Pronađi Todo po ID-ju i korisniku (za sigurnost)
+    Optional<Todo> findByIdAndUser(Long id, User user);
 
-    /**
-     * Najdi vse naloge po imenu (case insensitive)
-     */
-    List<Todo> findByNameContainingIgnoreCase(String name);
+    // ✅ UPDATED: Filtriranje po completed statusu za određenog korisnika
+    List<Todo> findByUserAndCompleted(User user, boolean completed);
 
-    // ========== NOVE METODE ZA TASK-2 - OSNOVNA STATISTIKA ==========
+    // ✅ UPDATED: Pretraga po imenu za određenog korisnika
+    List<Todo> findByUserAndNameContainingIgnoreCase(User user, String name);
 
-    /**
-     * Preštej vse naloge glede na status dokončanosti
-     * @param completed true za dokončane, false za nedokončane
-     * @return Število nalog
-     */
-    long countByCompleted(boolean completed);
+    // ✅ UPDATED: Brojanje po completed statusu za korisnika
+    long countByUserAndCompleted(User user, boolean completed);
 
-    /**
-     * Preštej vse naloge z iztečenim rokom
-     * @param today Današnji datum
-     * @param completed Status dokončanosti
-     * @return Število pretečenih nalog
-     */
-    @Query("SELECT COUNT(t) FROM Todo t WHERE t.dueDate < :today AND t.completed = :completed")
-    long countOverdueTasks(LocalDate today, boolean completed);
+    // ✅ UPDATED: Brojanje preko dueDate za korisnika
+    @Query("SELECT COUNT(t) FROM Todo t WHERE t.user = :user AND t.dueDate < :today AND t.completed = :completed")
+    long countOverdueTasks(@Param("user") User user, @Param("today") LocalDate today, @Param("completed") boolean completed);
 
-    /**
-     * Preštej vse naloge brez določenega roka
-     * @return Število nalog brez roka
-     */
-    long countByDueDateIsNull();
+    // ✅ UPDATED: Brojanje bez dueDate za korisnika
+    long countByUserAndDueDateIsNull(User user);
 
-    // ========== NOVE METODE ZA TASK-2 - STATISTIKA PO KATEGORIJAH ==========
+    // ✅ UPDATED: Statistika po kategorijama za korisnika
+    @Query("SELECT t.category, COUNT(t) FROM Todo t WHERE t.user = :user GROUP BY t.category")
+    List<Object[]> countByCategory(@Param("user") User user);
 
-    /**
-     * Dobi statistiko po kategorijah
-     * Vrne pare: [Category, COUNT]
-     * Primer rezultata: [[WORK, 15], [PERSONAL, 8], [SHOPPING, 5]]
-     */
-    @Query("SELECT t.category, COUNT(t) FROM Todo t GROUP BY t.category")
-    List<Object[]> countByCategory();
+    // ✅ UPDATED: Brojanje po kategoriji za korisnika
+    long countByUserAndCategory(User user, Category category);
 
-    /**
-     * Preštej naloge za določeno kategorijo
-     * @param category Kategorija
-     * @return Število nalog v tej kategoriji
-     */
-    long countByCategory(Category category);
+    // ✅ UPDATED: Naloge određene kategorije za korisnika
+    List<Todo> findByUserAndCategory(User user, Category category);
 
-    /**
-     * Najdi vse naloge določene kategorije
-     * @param category Kategorija
-     * @return Seznam nalog
-     */
-    List<Todo> findByCategory(Category category);
+    // ✅ UPDATED: Statistika po prioritetima za korisnika
+    @Query("SELECT t.priority, COUNT(t) FROM Todo t WHERE t.user = :user GROUP BY t.priority")
+    List<Object[]> countByPriority(@Param("user") User user);
 
-    // ========== NOVE METODE ZA TASK-2 - STATISTIKA PO PRIORITETAH ==========
+    // ✅ UPDATED: Brojanje po prioritetu za korisnika
+    long countByUserAndPriority(User user, Priority priority);
 
-    /**
-     * Dobi statistiko po prioritetah
-     * Vrne pare: [Priority, COUNT]
-     * Primer rezultata: [[HIGH, 10], [MEDIUM, 20], [LOW, 5]]
-     */
-    @Query("SELECT t.priority, COUNT(t) FROM Todo t GROUP BY t.priority")
-    List<Object[]> countByPriority();
+    // ✅ UPDATED: Naloge određene prioritete za korisnika
+    List<Todo> findByUserAndPriority(User user, Priority priority);
 
-    /**
-     * Preštej naloge za določeno prioriteto
-     * @param priority Prioriteta
-     * @return Število nalog te prioritete
-     */
-    long countByPriority(Priority priority);
+    // ✅ UPDATED: Sve naloge sortirane po prioritetu i roku za korisnika
+    @Query("SELECT t FROM Todo t WHERE t.user = :user ORDER BY t.priority DESC, t.dueDate ASC")
+    List<Todo> findAllOrderedByPriorityAndDueDate(@Param("user") User user);
 
-    /**
-     * Najdi vse naloge določene prioritete
-     * @param priority Prioriteta
-     * @return Seznam nalog
-     */
-    List<Todo> findByPriority(Priority priority);
+    // ✅ UPDATED: Naloge po kategoriji i completed za korisnika
+    List<Todo> findByUserAndCategoryAndCompleted(User user, Category category, boolean completed);
 
-    // ========== DODATNE POMOŽNE METODE ==========
+    // ✅ UPDATED: Visoko prioritetne nedovršene naloge za korisnika
+    @Query("SELECT t FROM Todo t WHERE t.user = :user AND t.priority = 'HIGH' AND t.completed = false")
+    List<Todo> findHighPriorityIncompleteTasks(@Param("user") User user);
 
-    /**
-     * Najdi vse naloge, urejene po prioriteti (HIGH -> MEDIUM -> LOW)
-     */
-    @Query("SELECT t FROM Todo t ORDER BY t.priority DESC, t.dueDate ASC")
-    List<Todo> findAllOrderedByPriorityAndDueDate();
-
-    /**
-     * Najdi vse dokončane naloge določene kategorije
-     */
-    List<Todo> findByCategoryAndCompleted(Category category, boolean completed);
-
-    /**
-     * Najdi vse nedokončane naloge visoke prioritete
-     */
-    @Query("SELECT t FROM Todo t WHERE t.priority = 'HIGH' AND t.completed = false")
-    List<Todo> findHighPriorityIncompleteTasks();
+    // ✅ NOVO: Brojanje svih Todo-a za korisnika
+    long countByUser(User user);
 }
